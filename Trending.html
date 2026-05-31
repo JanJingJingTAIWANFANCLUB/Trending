@@ -1,350 +1,255 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8"/>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>X Tracker PRO+ FULL</title>
+<title>X Tracker PRO+</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 
 <style>
 body{
   margin:0;
-  font-family:Arial;
+  font-family:'DM Sans',sans-serif;
   background:#fff8f9;
   color:#2a1018;
 }
 
-.container{
-  max-width:650px;
-  margin:auto;
-  padding:16px;
-}
+.container{max-width:520px;margin:auto;padding:16px}
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+.header{display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;color:#c8425a}
+.btn{padding:6px 10px;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-size:12px}
 
-.logo{
-  font-weight:900;
-  color:#c8425a;
-  font-size:18px;
-}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tag{padding:6px 12px;border-radius:20px;border:1px solid #f2c4ce;font-size:12px;cursor:pointer}
+.tag.active{background:#c8425a;color:#fff}
 
-.btn{
-  padding:6px 10px;
-  border:1px solid #ddd;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:12px;
-  background:#fff;
-}
+/* MAIN */
+.card{background:#fff;border-radius:14px;padding:14px;margin-top:10px;border:1px solid #eee}
+.big{font-size:34px;font-weight:800;color:#c8425a}
+.small{font-size:12px;color:#888}
 
-.row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:12px;
-}
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.box{background:#fff;border:1px solid #eee;border-radius:12px;padding:10px}
+.box .v{font-size:20px;font-weight:700}
 
-.tag{
-  padding:6px 12px;
-  border-radius:20px;
-  border:1px solid #f2c4ce;
-  cursor:pointer;
-  font-size:12px;
-}
-
-.tag.active{
-  background:#c8425a;
-  color:white;
-}
-
-.card{
-  background:white;
-  border-radius:14px;
-  padding:14px;
-  margin-top:12px;
-  border:1px solid #eee;
-}
-
-.big{
-  font-size:32px;
-  font-weight:900;
-  color:#c8425a;
-}
-
-.small{
-  font-size:12px;
-  color:#888;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+/* TICKER */
+.ticker{
   margin-top:10px;
-}
-
-.box{
-  background:white;
-  border:1px solid #eee;
+  background:#111;
+  color:#0f0;
   border-radius:12px;
   padding:10px;
+  font-family:monospace;
+  overflow:hidden;
+}
+.ticker-item{
+  display:flex;
+  justify-content:space-between;
+  padding:4px 0;
+  border-bottom:1px solid #222;
+  transition:all .2s;
+}
+.flash{
+  animation:flash .4s ease;
+}
+@keyframes flash{
+  0%{background:#c8425a33}
+  100%{background:transparent}
 }
 
-.box .v{
-  font-size:20px;
-  font-weight:700;
-}
-
-.pill{
-  display:inline-block;
-  background:#fdf0f2;
-  padding:4px 10px;
-  border-radius:20px;
-  font-size:12px;
-  margin-right:6px;
-}
-
-canvas{
-  margin-top:10px;
-}
-
-.status{
-  font-size:11px;
-  color:#999;
-}
+.pill{background:#fdf0f2;padding:4px 10px;border-radius:20px;font-size:12px}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo">X TRACKER PRO+ FULL</div>
-    <button class="btn" onclick="setWorker()">SET API</button>
+<div class="header">
+  <div class="logo">X TRACKER PRO+</div>
+  <button class="btn" onclick="setWorker()">SET API</button>
+</div>
+
+<div class="row" id="tagRow">
+  <div class="tag active" onclick="selectTag(this,'JANHAE')">#JANHAE</div>
+  <div class="tag" onclick="selectTag(this,'jingjingyu')">#jingjingyu</div>
+  <div class="tag" onclick="selectTag(this,'JanJingJing')">#JanJingJing</div>
+  <div class="tag" onclick="selectTag(this,'EnemiesWithBenefitsEP5')">#EWB EP5</div>
+  <div class="tag" onclick="addTag()">＋</div>
+</div>
+
+<div class="card">
+  <div class="small" id="title">Total Tweets</div>
+  <div class="big" id="tweets">0</div>
+  <div class="small" id="sub">waiting...</div>
+</div>
+
+<div class="grid">
+  <div class="box">
+    <div class="small">Users</div>
+    <div class="v" id="users">0</div>
   </div>
-
-  <div class="status" id="status">idle</div>
-
-  <!-- TAGS -->
-  <div class="row" id="tagRow"></div>
-
-  <!-- MAIN -->
-  <div class="card">
-    <div class="small" id="title">Trend Dashboard</div>
-    <div class="big" id="tweets">0</div>
-    <div class="small">Tweets</div>
+  <div class="box">
+    <div class="small">Engagement</div>
+    <div class="v" id="eng">0</div>
   </div>
+</div>
 
-  <!-- STATS -->
-  <div class="grid">
-    <div class="box">
-      <div class="small">Users</div>
-      <div class="v" id="users">0</div>
-    </div>
+<div class="card">
+  <div class="small">TREND VELOCITY (10s)</div>
+  <div class="pill">Tweets +<span id="vTweets">0</span></div>
+  <div class="pill">Users +<span id="vUsers">0</span></div>
+  <div class="pill">Eng +<span id="vEng">0</span></div>
+</div>
 
-    <div class="box">
-      <div class="small">Engagement</div>
-      <div class="v" id="eng">0</div>
-    </div>
-  </div>
-
-  <!-- HEATMAP -->
-  <div class="card">
-    <div class="small">HEATMAP</div>
-    <div class="pill">🌍 Global <span id="global">0</span></div>
-    <div class="pill">🇹🇼 TW <span id="tw">0</span></div>
-    <div class="pill">🇹🇭 TH <span id="th">0</span></div>
-  </div>
-
-  <!-- CHART -->
-  <div class="card">
-    <canvas id="chart"></canvas>
-  </div>
+<!-- 🔥 REALTIME TICKER -->
+<div class="ticker" id="ticker"></div>
 
 </div>
 
 <script>
 
-let API = localStorage.getItem("API") || "";
+let API_BASE = localStorage.getItem("API_BASE") || "";
 let active = "JANHAE";
-let tags = [
-  "JANHAE",
-  "jingjingyu",
-  "JanJingJing",
-  "EnemiesWithBenefitsEP5"
-];
+let hashtags = ["JANHAE","jingjingyu","JanJingJing","EnemiesWithBenefitsEP5"];
 
-let chart = null;
-let isLoading = false;
+let prev = {};
+let tickerState = {};
 
-// ================= API =================
 function setWorker(){
-  const v = prompt("Cloudflare Worker URL");
-  if(v){
-    API = v;
-    localStorage.setItem("API", v);
+  const url = prompt("Cloudflare Worker URL");
+  if(url){
+    API_BASE = url;
+    localStorage.setItem("API_BASE",url);
+    alert("saved");
   }
 }
 
-function endpoint(tag){
-  return `${API}?tag=${encodeURIComponent(tag)}`;
+function fetchTag(tag){
+  if(!API_BASE) return null;
+  return fetch(`${API_BASE}?tag=${encodeURIComponent(tag)}`).then(r=>r.json()).catch(()=>null);
 }
 
-// ================= TAG UI =================
-function renderTags(){
-  document.getElementById("tagRow").innerHTML =
-    tags.map(t =>
-      `<div class="tag ${t===active?'active':''}" onclick="switchTag('${t}')">#${t}</div>`
-    ).join("");
-}
+/* ---------------- parse ---------------- */
+function parse(data){
 
-function switchTag(t){
-  active = t;
-  renderTags();
-  load();
-}
-
-// ================= FETCH =================
-async function fetchData(tag){
-
-  if(!API){
-    document.getElementById("status").innerText = "Please set API";
-    return null;
+  if(!Array.isArray(data)){
+    return {tweets:0,users:0,eng:0,velocity:{}};
   }
-
-  try{
-
-    const res = await fetch(endpoint(tag));
-
-    if(!res.ok){
-      console.log(await res.text());
-      return null;
-    }
-
-    return await res.json();
-
-  }catch(e){
-    console.log(e);
-    return null;
-  }
-}
-
-// ================= PROCESS =================
-function process(data){
-
-  if(!Array.isArray(data)) return {
-    tweets:0, users:0, eng:0, tw:0, th:0
-  };
 
   let users = new Set();
   let eng = 0;
-  let tw = 0;
-  let th = 0;
 
-  data.forEach(x => {
-
-    if(x.author?.userName){
-      users.add(x.author.userName);
-    }
-
-    eng += (x.likeCount||0) + (x.retweetCount||0);
-
-    const loc = (x.author?.location||"").toLowerCase();
-
-    if(
-      loc.includes("taiwan") ||
-      loc.includes("台灣") ||
-      loc.includes("taipei")
-    ) tw++;
-
-    if(
-      loc.includes("thailand") ||
-      loc.includes("bangkok")
-    ) th++;
-
+  data.forEach(x=>{
+    if(x.author?.userName) users.add(x.author.userName);
+    eng += (x.likeCount||0)+(x.retweetCount||0);
   });
 
-  return {
-    tweets: data.length,
-    users: users.size,
-    eng,
-    tw,
-    th
+  let current = {
+    tweets:data.length,
+    users:users.size,
+    eng
   };
+
+  let last = prev[active] || current;
+
+  let velocity = {
+    tweets: current.tweets - last.tweets,
+    users: current.users - last.users,
+    eng: current.eng - last.eng
+  };
+
+  prev[active] = current;
+
+  return {...current, velocity};
 }
 
-// ================= RENDER =================
-function render(tag, d){
+/* ---------------- render ---------------- */
+function render(tag,d){
 
-  document.getElementById("title").innerText = "Trend · #" + tag;
-
+  document.getElementById("title").innerText = "#"+tag;
   document.getElementById("tweets").innerText = d.tweets;
   document.getElementById("users").innerText = d.users;
   document.getElementById("eng").innerText = d.eng;
 
-  document.getElementById("global").innerText = d.tweets;
-  document.getElementById("tw").innerText = d.tw;
-  document.getElementById("th").innerText = d.th;
+  document.getElementById("vTweets").innerText = d.velocity.tweets;
+  document.getElementById("vUsers").innerText = d.velocity.users;
+  document.getElementById("vEng").innerText = d.velocity.eng;
 
-  drawChart(d);
 }
 
-// ================= CHART (NO REBUILD BUG) =================
-function drawChart(d){
+/* ---------------- ticker ---------------- */
+function updateTicker(tag,d){
 
-  const ctx = document.getElementById("chart");
+  tickerState[tag] = d;
 
-  const data = {
-    labels:["Tweets","Users","Engagement"],
-    datasets:[{
-      data:[d.tweets, d.users, d.eng]
-    }]
-  };
+  const el = document.getElementById("ticker");
+  el.innerHTML = "";
 
-  if(chart){
-    chart.data = data;
-    chart.update();
-  }else{
-    chart = new Chart(ctx, {
-      type:"bar",
-      data
-    });
+  Object.keys(tickerState).forEach(t=>{
+
+    const d = tickerState[t];
+
+    const div = document.createElement("div");
+    div.className = "ticker-item flash";
+
+    div.innerHTML = `
+      <div>${t}</div>
+      <div>T:${d.tweets} V:${d.velocity.tweets} E:${d.eng}</div>
+    `;
+
+    el.appendChild(div);
+
+    setTimeout(()=>div.classList.remove("flash"),300);
+  });
+
+}
+
+/* ---------------- update loop ---------------- */
+async function update(){
+
+  for(let t of hashtags){
+
+    const data = await fetchTag(t);
+    if(!data) continue;
+
+    const d = parse(data);
+
+    if(t === active) render(t,d);
+
+    updateTicker(t,d);
   }
+
+  document.getElementById("sub").innerText =
+    "updated " + new Date().toLocaleTimeString();
 }
 
-// ================= UPDATE LOOP =================
-async function load(){
-
-  if(isLoading) return;
-  isLoading = true;
-
-  document.getElementById("status").innerText = "loading...";
-
-  const raw = await fetchData(active);
-
-  const d = process(raw);
-
-  render(active, d);
-
-  document.getElementById("status").innerText =
-    "last update: " + new Date().toLocaleTimeString();
-
-  isLoading = false;
+function selectTag(el,t){
+  active=t;
+  document.querySelectorAll(".tag").forEach(x=>x.classList.remove("active"));
+  el.classList.add("active");
+  update();
 }
 
-// ================= INIT =================
-renderTags();
-load();
+function addTag(){
+  let t=prompt("hashtag");
+  if(!t) return;
+  t=t.replace("#","");
+  hashtags.push(t);
 
-// 🔥 10秒更新（完整保留）
-setInterval(load, 10000);
+  const el=document.createElement("div");
+  el.className="tag";
+  el.innerText="#"+t;
+  el.onclick=()=>selectTag(el,t);
+
+  document.getElementById("tagRow")
+    .insertBefore(el,document.querySelector(".tag:last-child"));
+}
+
+update();
+setInterval(update,10000);
 
 </script>
 
