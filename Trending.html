@@ -3,130 +3,348 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>X Tracker PRO+</title>
+<title>X Tracker PRO+ FULL</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#fff7f9;color:#222}
-.container{max-width:600px;margin:auto;padding:16px}
-.header{display:flex;justify-content:space-between;align-items:center}
-.logo{font-weight:800;color:#c8425a}
-.btn{padding:6px 10px;border:1px solid #ddd;border-radius:8px;cursor:pointer}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#fff8f9;
+  color:#2a1018;
+}
 
-.row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.tag{padding:6px 10px;border:1px solid #f2c4ce;border-radius:20px;cursor:pointer}
-.tag.active{background:#c8425a;color:#fff}
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:16px;
+}
 
-.card{background:#fff;border-radius:12px;padding:12px;margin-top:10px;border:1px solid #eee}
-.big{font-size:28px;font-weight:800;color:#c8425a}
-.small{font-size:12px;color:#777}
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.box{background:#fff;border:1px solid #eee;border-radius:10px;padding:10px}
+.logo{
+  font-weight:900;
+  color:#c8425a;
+  font-size:18px;
+}
 
-canvas{margin-top:10px;background:#fff;border-radius:10px}
+.btn{
+  padding:6px 10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+  background:#fff;
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.tag{
+  padding:6px 12px;
+  border-radius:20px;
+  border:1px solid #f2c4ce;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.tag.active{
+  background:#c8425a;
+  color:white;
+}
+
+.card{
+  background:white;
+  border-radius:14px;
+  padding:14px;
+  margin-top:12px;
+  border:1px solid #eee;
+}
+
+.big{
+  font-size:32px;
+  font-weight:900;
+  color:#c8425a;
+}
+
+.small{
+  font-size:12px;
+  color:#888;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+.box{
+  background:white;
+  border:1px solid #eee;
+  border-radius:12px;
+  padding:10px;
+}
+
+.box .v{
+  font-size:20px;
+  font-weight:700;
+}
+
+.pill{
+  display:inline-block;
+  background:#fdf0f2;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  margin-right:6px;
+}
+
+canvas{
+  margin-top:10px;
+}
+
+.status{
+  font-size:11px;
+  color:#999;
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
-<div class="header">
-  <div class="logo">X TRACKER PRO+</div>
-</div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">X TRACKER PRO+ FULL</div>
+    <button class="btn" onclick="setWorker()">SET API</button>
+  </div>
 
-<div class="row">
-  <div class="tag active" onclick="selectTag(this,'JANHAE')">#JANHAE</div>
-  <div class="tag" onclick="selectTag(this,'jingjingyu')">#jingjingyu</div>
-  <div class="tag" onclick="selectTag(this,'JanJingJing')">#JanJingJing</div>
-  <div class="tag" onclick="selectTag(this,'EnemiesWithBenefitsEP5')">#EWBEP5</div>
-</div>
+  <div class="status" id="status">idle</div>
 
-<div class="card">
-  <div class="small">TOTAL</div>
-  <div class="big" id="count">0</div>
-  <div class="small" id="status">loading...</div>
-</div>
+  <!-- TAGS -->
+  <div class="row" id="tagRow"></div>
 
-<div class="grid">
-  <div class="box">Users <div id="users">0</div></div>
-  <div class="box">Eng <div id="eng">0</div></div>
-</div>
+  <!-- MAIN -->
+  <div class="card">
+    <div class="small" id="title">Trend Dashboard</div>
+    <div class="big" id="tweets">0</div>
+    <div class="small">Tweets</div>
+  </div>
 
-<canvas id="chart"></canvas>
+  <!-- STATS -->
+  <div class="grid">
+    <div class="box">
+      <div class="small">Users</div>
+      <div class="v" id="users">0</div>
+    </div>
+
+    <div class="box">
+      <div class="small">Engagement</div>
+      <div class="v" id="eng">0</div>
+    </div>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="card">
+    <div class="small">HEATMAP</div>
+    <div class="pill">🌍 Global <span id="global">0</span></div>
+    <div class="pill">🇹🇼 TW <span id="tw">0</span></div>
+    <div class="pill">🇹🇭 TH <span id="th">0</span></div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card">
+    <canvas id="chart"></canvas>
+  </div>
 
 </div>
 
 <script>
 
-let API = "https://你的worker.workers.dev";
+let API = localStorage.getItem("API") || "";
 let active = "JANHAE";
-let history = [];
+let tags = [
+  "JANHAE",
+  "jingjingyu",
+  "JanJingJing",
+  "EnemiesWithBenefitsEP5"
+];
 
-const chart = new Chart(document.getElementById("chart"), {
-  type: "line",
-  data: {
-    labels: [],
-    datasets: [{
-      label: "Tweet Count",
-      data: [],
-      borderColor: "#c8425a",
-      fill: false
-    }]
+let chart = null;
+let isLoading = false;
+
+// ================= API =================
+function setWorker(){
+  const v = prompt("Cloudflare Worker URL");
+  if(v){
+    API = v;
+    localStorage.setItem("API", v);
   }
-});
-
-function selectTag(el, tag){
-  active = tag;
-  document.querySelectorAll(".tag").forEach(t=>t.classList.remove("active"));
-  el.classList.add("active");
-  fetchData();
 }
 
-async function fetchData(){
+function endpoint(tag){
+  return `${API}?tag=${encodeURIComponent(tag)}`;
+}
+
+// ================= TAG UI =================
+function renderTags(){
+  document.getElementById("tagRow").innerHTML =
+    tags.map(t =>
+      `<div class="tag ${t===active?'active':''}" onclick="switchTag('${t}')">#${t}</div>`
+    ).join("");
+}
+
+function switchTag(t){
+  active = t;
+  renderTags();
+  load();
+}
+
+// ================= FETCH =================
+async function fetchData(tag){
+
+  if(!API){
+    document.getElementById("status").innerText = "Please set API";
+    return null;
+  }
 
   try{
-    const res = await fetch(`${API}?tag=${active}`);
-    const json = await res.json();
 
-    const data = json.data || [];
+    const res = await fetch(endpoint(tag));
 
-    let users = new Set();
-    let eng = 0;
-
-    data.forEach(x=>{
-      if(x.author?.userName) users.add(x.author.userName);
-      eng += (x.likeCount||0)+(x.retweetCount||0);
-    });
-
-    document.getElementById("count").innerText = data.length;
-    document.getElementById("users").innerText = users.size;
-    document.getElementById("eng").innerText = eng;
-
-    const now = new Date().toLocaleTimeString();
-
-    chart.data.labels.push(now);
-    chart.data.datasets[0].data.push(data.length);
-
-    if(chart.data.labels.length > 20){
-      chart.data.labels.shift();
-      chart.data.datasets[0].data.shift();
+    if(!res.ok){
+      console.log(await res.text());
+      return null;
     }
 
-    chart.update();
-
-    document.getElementById("status").innerText =
-      "updated " + now;
+    return await res.json();
 
   }catch(e){
     console.log(e);
-    document.getElementById("status").innerText = "error";
+    return null;
   }
 }
 
-fetchData();
-setInterval(fetchData, 5000);
+// ================= PROCESS =================
+function process(data){
+
+  if(!Array.isArray(data)) return {
+    tweets:0, users:0, eng:0, tw:0, th:0
+  };
+
+  let users = new Set();
+  let eng = 0;
+  let tw = 0;
+  let th = 0;
+
+  data.forEach(x => {
+
+    if(x.author?.userName){
+      users.add(x.author.userName);
+    }
+
+    eng += (x.likeCount||0) + (x.retweetCount||0);
+
+    const loc = (x.author?.location||"").toLowerCase();
+
+    if(
+      loc.includes("taiwan") ||
+      loc.includes("台灣") ||
+      loc.includes("taipei")
+    ) tw++;
+
+    if(
+      loc.includes("thailand") ||
+      loc.includes("bangkok")
+    ) th++;
+
+  });
+
+  return {
+    tweets: data.length,
+    users: users.size,
+    eng,
+    tw,
+    th
+  };
+}
+
+// ================= RENDER =================
+function render(tag, d){
+
+  document.getElementById("title").innerText = "Trend · #" + tag;
+
+  document.getElementById("tweets").innerText = d.tweets;
+  document.getElementById("users").innerText = d.users;
+  document.getElementById("eng").innerText = d.eng;
+
+  document.getElementById("global").innerText = d.tweets;
+  document.getElementById("tw").innerText = d.tw;
+  document.getElementById("th").innerText = d.th;
+
+  drawChart(d);
+}
+
+// ================= CHART (NO REBUILD BUG) =================
+function drawChart(d){
+
+  const ctx = document.getElementById("chart");
+
+  const data = {
+    labels:["Tweets","Users","Engagement"],
+    datasets:[{
+      data:[d.tweets, d.users, d.eng]
+    }]
+  };
+
+  if(chart){
+    chart.data = data;
+    chart.update();
+  }else{
+    chart = new Chart(ctx, {
+      type:"bar",
+      data
+    });
+  }
+}
+
+// ================= UPDATE LOOP =================
+async function load(){
+
+  if(isLoading) return;
+  isLoading = true;
+
+  document.getElementById("status").innerText = "loading...";
+
+  const raw = await fetchData(active);
+
+  const d = process(raw);
+
+  render(active, d);
+
+  document.getElementById("status").innerText =
+    "last update: " + new Date().toLocaleTimeString();
+
+  isLoading = false;
+}
+
+// ================= INIT =================
+renderTags();
+load();
+
+// 🔥 10秒更新（完整保留）
+setInterval(load, 10000);
 
 </script>
 
