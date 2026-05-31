@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>X Tracker PRO+</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+
+<style>
+body{
+  margin:0;
+  font-family:'DM Sans',sans-serif;
+  background:#fff8f9;
+  color:#2a1018;
+}
+
+.container{max-width:520px;margin:auto;padding:16px}
+
+.header{display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;color:#c8425a}
+.btn{padding:6px 10px;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-size:12px}
+
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tag{padding:6px 12px;border-radius:20px;border:1px solid #f2c4ce;font-size:12px;cursor:pointer}
+.tag.active{background:#c8425a;color:#fff}
+
+.card{background:#fff;border-radius:14px;padding:14px;margin-top:10px;border:1px solid #eee}
+.big{font-size:34px;font-weight:800;color:#c8425a}
+.small{font-size:12px;color:#888}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.box{background:#fff;border:1px solid #eee;border-radius:12px;padding:10px}
+.box .v{font-size:20px;font-weight:700}
+
+.pill{background:#fdf0f2;padding:4px 10px;border-radius:20px;font-size:12px}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+  <div class="logo">X TRACKER PRO+</div>
+  <button class="btn" onclick="setWorker()">SET API URL</button>
+</div>
+
+<div class="row">
+  <div class="tag active" onclick="selectTag(this,'JANHAE')">#JANHAE</div>
+  <div class="tag" onclick="selectTag(this,'jingjingyu')">#jingjingyu</div>
+  <div class="tag" onclick="selectTag(this,'JanJingJing')">#JanJingJing</div>
+  <div class="tag" onclick="selectTag(this,'EnemiesWithBenefitsEP5')">#EWB EP5</div>
+  <div class="tag" onclick="addTag()">＋</div>
+</div>
+
+<div class="card">
+  <div class="small" id="title">Total Tweets · #JANHAE</div>
+  <div class="big" id="tweets">0</div>
+  <div class="small" id="sub">waiting...</div>
+</div>
+
+<div class="grid">
+  <div class="box">
+    <div class="small">Users</div>
+    <div class="v" id="users">0</div>
+  </div>
+  <div class="box">
+    <div class="small">Engagement</div>
+    <div class="v" id="eng">0</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="small">GLOBAL</div>
+  <div class="pill">TW <span id="tw">0</span></div>
+  <div class="pill">TH <span id="th">0</span></div>
+</div>
+
+</div>
+
+<script>
+
+let API_BASE = localStorage.getItem("API_BASE") || "";
+let active = "JANHAE";
+let hashtags = ["JANHAE","jingjingyu","JanJingJing","EnemiesWithBenefitsEP5"];
+
+function setWorker(){
+  const url = prompt("Paste Cloudflare Worker URL");
+  if(url){
+    API_BASE = url;
+    localStorage.setItem("API_BASE",url);
+    alert("saved");
+  }
+}
+
+function getAPI(tag){
+  return `${API_BASE}?tag=${encodeURIComponent(tag)}`;
+}
+
+async function fetchTag(tag){
+  if(!API_BASE){
+    document.getElementById("sub").innerText="SET API URL first";
+    return null;
+  }
+
+  try{
+    const res = await fetch(getAPI(tag));
+    return await res.json();
+  }catch(e){
+    console.log(e);
+    return null;
+  }
+}
+
+function parse(data){
+  if(!Array.isArray(data)) return {tweets:0,users:0,eng:0,tw:0,th:0};
+
+  let users=new Set(), eng=0, tw=0, th=0;
+
+  data.forEach(x=>{
+    if(x.author?.userName) users.add(x.author.userName);
+    eng += (x.likeCount||0)+(x.retweetCount||0);
+
+    const loc=(x.author?.location||"").toLowerCase();
+    if(loc.includes("taiwan")||loc.includes("台灣")) tw++;
+    if(loc.includes("thailand")||loc.includes("bangkok")) th++;
+  });
+
+  return {
+    tweets:data.length,
+    users:users.size,
+    eng,tw,th
+  };
+}
+
+function render(tag,d){
+  document.getElementById("title").innerText="Total Tweets · #"+tag;
+  document.getElementById("tweets").innerText=d.tweets;
+  document.getElementById("users").innerText=d.users;
+  document.getElementById("eng").innerText=d.eng;
+  document.getElementById("tw").innerText=d.tw;
+  document.getElementById("th").innerText=d.th;
+}
+
+async function update(){
+  const data = await fetchTag(active);
+  if(!data) return;
+  const d = parse(data);
+  render(active,d);
+  document.getElementById("sub").innerText="updated "+new Date().toLocaleTimeString();
+}
+
+function selectTag(el,t){
+  active=t;
+  document.querySelectorAll(".tag").forEach(x=>x.classList.remove("active"));
+  el.classList.add("active");
+  update();
+}
+
+function addTag(){
+  let t=prompt("hashtag");
+  if(!t) return;
+  t=t.replace("#","");
+  hashtags.push(t);
+
+  const el=document.createElement("div");
+  el.className="tag";
+  el.innerText="#"+t;
+  el.onclick=()=>selectTag(el,t);
+  document.querySelector(".row").insertBefore(el,document.querySelector(".row .tag:last-child"));
+}
+
+update();
+setInterval(update,10000);
+
+</script>
+
+</body>
+</html>
