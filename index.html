@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jewel's TAIWAN · X Tracker</title>
+<title>Jewel's TAIWAN · X Trending</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -512,8 +512,8 @@
     <div class="header-brand">
       <div class="logo">🐱</div>
       <div class="brand-text">
-        <h1>JanJingJing TW</h1>
-        <p>Realtime X Tracker</p>
+        <h1>Jewel's TAIWAN</h1>
+        <p>X Trending</p>
       </div>
     </div>
     <div class="header-star">✦</div>
@@ -534,7 +534,7 @@
       <div class="hashtag-chip" onclick="selectHashtag(this, 'jingjingyu')">#jingjingyu</div>
       <div class="hashtag-chip" onclick="selectHashtag(this, 'JanJingJing')">#JanJingJing</div>
       <div class="hashtag-chip" onclick="selectHashtag(this, 'EnemiesWithBenefitsEP5')">#EnemiesWithBenefitsEP5</div>
-      <div class="hashtag-chip add" onclick="alert('即將開放新增 hashtag！')">＋ 新增</div>
+      <div class="hashtag-chip add" onclick="addTag()">＋ 新增</div>
     </div>
 
     <!-- Hero stat -->
@@ -604,7 +604,7 @@
 
     <!-- Keyword section -->
     <div class="section-title">🔍 Keyword 追蹤</div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;" class="kw-list">
       <div style="background:white;border-radius:16px;padding:16px 18px;border:1px solid rgba(200,66,90,0.07);box-shadow:0 2px 10px rgba(200,66,90,0.06);display:flex;align-items:center;justify-content:space-between;">
         <div>
           <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--rose-deep);">EWB FIFTH EP</div>
@@ -615,7 +615,7 @@
           <div style="font-size:11px;color:var(--text-soft);">Total Tweets</div>
         </div>
       </div>
-      <div style="background:white;border-radius:16px;padding:14px 18px;border:1.5px dashed var(--rose-light);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text-soft);" onclick="alert('即將開放新增 Keyword！')">
+      <div class="kw-add" style="background:white;border-radius:16px;padding:14px 18px;border:1.5px dashed var(--rose-light);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text-soft);" onclick="addKeyword()">
         <span style="font-size:18px;">＋</span>
         <span style="font-size:13px;font-weight:500;">新增 Keyword</span>
       </div>
@@ -641,10 +641,14 @@
     <div style="background:white;border-radius:16px;padding:16px;border:1px solid rgba(200,66,90,0.07);box-shadow:0 2px 10px rgba(200,66,90,0.06);margin-bottom:12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
-          <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--text-soft);text-transform:uppercase;">基準點</div>
-          <div style="font-size:13px;color:var(--text-mid);margin-top:3px;" id="baseline-time">尚未設定</div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--text-soft);text-transform:uppercase;">播出時段</div>
+          <div style="font-size:12px;color:var(--text-mid);margin-top:3px;" id="baseline-time">尚未設定</div>
+          <div style="font-size:11px;color:var(--text-soft);margin-top:2px;" id="end-time-display"></div>
         </div>
-        <button onclick="setBaseline()" style="background:var(--rose);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📺 播出開始</button>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button onclick="setBaseline()" id="btn-start" style="background:var(--rose);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📺 播出開始</button>
+          <button onclick="clearBaseline()" style="background:var(--rose-pale);color:var(--rose);border:1px solid var(--rose-light);border-radius:10px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;">🔄 重設</button>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div style="background:var(--rose-pale);border-radius:12px;padding:12px;">
@@ -655,8 +659,12 @@
           <div style="font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text-soft);text-transform:uppercase;">基準時推文數</div>
           <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--rose-deep);margin-top:4px;" id="baseline-count">—</div>
         </div>
+        <div style="background:var(--rose-pale);border-radius:12px;padding:12px;grid-column:span 2;">
+          <div style="font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text-soft);text-transform:uppercase;">統計結束時間</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--rose-deep);margin-top:4px;" id="end-count-display">隔天 18:00 自動結束</div>
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--text-soft);margin-top:10px;text-align:center;">播出前按「播出開始」記錄基準，之後自動計算新增推文數</div>
+      <div style="font-size:11px;color:var(--text-soft);margin-top:10px;text-align:center;" id="baseline-status">播出前按「播出開始」記錄基準，隔天下午 6 點自動停止累積</div>
     </div>
 
     <div class="update-note" id="update-time">🕐 載入中…</div>
@@ -994,6 +1002,17 @@ function addTag() {
 /* ── BASELINE ── */
 let baseline = JSON.parse(localStorage.getItem("jjj_baseline") || "{}");
 
+function getEndTime(startTime) {
+  const end = new Date(startTime);
+  end.setDate(end.getDate() + 1);
+  end.setHours(18, 0, 0, 0);
+  return end;
+}
+
+function isEnded(startTime) {
+  return new Date() >= getEndTime(startTime);
+}
+
 function setBaseline() {
   if (!window._lastTweetCount) {
     alert("請先等待數據載入完成！");
@@ -1002,11 +1021,19 @@ function setBaseline() {
   const now = new Date();
   baseline[activeTag] = {
     time: now.toISOString(),
-    count: window._lastTweetCount
+    count: window._lastTweetCount,
+    finalCount: null
   };
   localStorage.setItem("jjj_baseline", JSON.stringify(baseline));
   updateBaselineUI();
-  alert(`✅ 基準點已設定！\n時間：${now.toLocaleTimeString("zh-TW")}\n推文數：${window._lastTweetCount}`);
+  alert(`✅ 基準點已設定！\n時間：${now.toLocaleTimeString("zh-TW")}\n推文數：${window._lastTweetCount}\n統計將於隔天 18:00 自動結束`);
+}
+
+function clearBaseline() {
+  if (!confirm("確定要重設基準點嗎？")) return;
+  delete baseline[activeTag];
+  localStorage.setItem("jjj_baseline", JSON.stringify(baseline));
+  updateBaselineUI();
 }
 
 function updateBaselineUI() {
@@ -1015,19 +1042,72 @@ function updateBaselineUI() {
     document.getElementById("baseline-time").textContent = "尚未設定";
     document.getElementById("baseline-count").textContent = "—";
     document.getElementById("since-baseline").textContent = "—";
+    document.getElementById("end-time-display").textContent = "";
+    document.getElementById("end-count-display").textContent = "隔天 18:00 自動結束";
+    document.getElementById("baseline-status").textContent = "播出前按「播出開始」記錄基準，隔天下午 6 點自動停止累積";
     return;
   }
-  const t = new Date(b.time);
-  document.getElementById("baseline-time").textContent =
-    t.toLocaleDateString("zh-TW") + " " + t.toLocaleTimeString("zh-TW");
-  document.getElementById("baseline-count").textContent = fmt(b.count);
 
-  if (window._lastTweetCount) {
-    const diff = window._lastTweetCount - b.count;
+  const startT = new Date(b.time);
+  const endT = getEndTime(b.time);
+  const ended = isEnded(b.time);
+
+  document.getElementById("baseline-time").textContent =
+    "開始：" + startT.toLocaleDateString("zh-TW") + " " + startT.toLocaleTimeString("zh-TW");
+  document.getElementById("end-time-display").textContent =
+    "結束：" + endT.toLocaleDateString("zh-TW") + " 18:00";
+  document.getElementById("baseline-count").textContent = fmt(b.count);
+  document.getElementById("end-count-display").textContent = ended
+    ? (b.finalCount ? "最終：" + fmt(b.finalCount) : "已結束")
+    : "統計中… 隔天 18:00 結束";
+
+  if (ended) {
+    document.getElementById("baseline-status").textContent = "✅ 統計已結束（隔天 18:00）";
+    if (window._lastTweetCount && !b.finalCount) {
+      baseline[activeTag].finalCount = window._lastTweetCount;
+      localStorage.setItem("jjj_baseline", JSON.stringify(baseline));
+    }
+    const diff = (b.finalCount || window._lastTweetCount || b.count) - b.count;
     document.getElementById("since-baseline").textContent = diff >= 0 ? "+" + fmt(diff) : fmt(diff);
+  } else {
+    document.getElementById("baseline-status").textContent = "📊 統計中…";
+    if (window._lastTweetCount) {
+      const diff = window._lastTweetCount - b.count;
+      document.getElementById("since-baseline").textContent = diff >= 0 ? "+" + fmt(diff) : fmt(diff);
+    }
   }
 }
 
+
+/* ── ADD KEYWORD ── */
+function addKeyword() {
+  const t = prompt("輸入 Keyword（不需要加 #）");
+  if (!t) return;
+  const clean = t.trim();
+
+  const kwList = document.querySelector(".kw-list");
+  const addBtn = kwList.querySelector(".kw-add");
+
+  const el = document.createElement("div");
+  el.style.cssText = "background:white;border-radius:16px;padding:16px 18px;border:1px solid rgba(200,66,90,0.07);box-shadow:0 2px 10px rgba(200,66,90,0.06);display:flex;align-items:center;justify-content:space-between;";
+  el.innerHTML = `
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--rose-deep);">${clean}</div>
+      <div style="font-size:11px;color:var(--text-soft);margin-top:3px;">Keyword 搜尋量</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--rose);" class="kw-count">載入中…</div>
+      <div style="font-size:11px;color:var(--text-soft);">Total Tweets</div>
+    </div>
+  `;
+  kwList.insertBefore(el, addBtn);
+
+  fetchTag(clean).then(data => {
+    if (!data) return;
+    const parsed = parse(data);
+    if (parsed) el.querySelector(".kw-count").textContent = fmt(parsed.tweetCount);
+  });
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   fetchAndRender(activeTag);
