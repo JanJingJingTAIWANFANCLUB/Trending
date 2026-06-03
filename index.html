@@ -541,6 +541,16 @@
       <div class="stat-hero-label" id="hero-label">Total Tweets · #JANHAE</div>
       <div class="stat-hero-num" id="hero-num">…</div>
       <div class="stat-hero-sub" id="hero-more"></div>
+      <div style="margin-top:12px;background:rgba(255,255,255,0.12);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,0.6);text-transform:uppercase;">今日新增</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;margin-top:2px;" id="today-count">…</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,0.6);text-transform:uppercase;">重置時間</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;">每天 00:00</div>
+        </div>
+      </div>
     </div>
 
     <!-- Engagement / Reach -->
@@ -982,6 +992,7 @@ function renderUI(tag, d) {
   renderChart(tag);
   window._lastTweetCount = d.tweetCount;
   updateBaselineUI();
+  checkDailyReset(tag, d.tweetCount);
 }
 
 /* ── SET LOADING ── */
@@ -1103,7 +1114,28 @@ function updateBaselineUI() {
 }
 
 
-/* ── ADD KEYWORD ── */
+/* ── DAILY RESET ── */
+let dailyBase = JSON.parse(localStorage.getItem("jjj_daily") || "{}");
+
+function getTodayKey() {
+  // 台灣時間 UTC+8
+  const now = new Date();
+  const tw = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  return tw.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function checkDailyReset(tag, currentCount) {
+  const today = getTodayKey();
+  if (!dailyBase[tag] || dailyBase[tag].date !== today) {
+    // 新的一天，記錄基準
+    dailyBase[tag] = { date: today, count: currentCount };
+    localStorage.setItem("jjj_daily", JSON.stringify(dailyBase));
+  }
+  const diff = currentCount - dailyBase[tag].count;
+  document.getElementById("today-count").textContent = diff >= 0 ? "+" + fmt(diff) : fmt(diff);
+}
+
+
 function addKeyword() {
   const t = prompt("輸入 Keyword（不需要加 #）");
   if (!t) return;
