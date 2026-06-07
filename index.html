@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -1018,6 +1019,31 @@ async function fetchAndRender(tag) {
   renderUI(tag, parsed);
 }
 
+/* ── CONFIG WORKER ── */
+const CONFIG_WORKER = "https://janjingjing-config.janjingjingtaiwanfanclub.workers.dev";
+
+async function saveToGitHub() {
+  try {
+    const getRes = await fetch(
+      "https://api.github.com/repos/JanJingJingTAIWANFANCLUB/Trending/contents/index.html"
+    );
+    const fileData = await getRes.json();
+    const sha = fileData.sha;
+    const html = document.documentElement.outerHTML;
+    const content = btoa(unescape(encodeURIComponent(html)));
+    const res = await fetch(CONFIG_WORKER, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, sha })
+    });
+    const data = await res.json();
+    return !!data.content;
+  } catch(e) {
+    console.error("儲存錯誤", e);
+    return false;
+  }
+}
+
 /* ── ADD TAG ── */
 function addTag() {
   const t = prompt("輸入 hashtag（不需要加 #）");
@@ -1032,9 +1058,47 @@ function addTag() {
   el.textContent = "#" + clean;
   el.onclick = () => selectHashtag(el, clean);
   row.insertBefore(el, addBtn);
+
+  saveToGitHub().then(ok => {
+    if (ok) alert("✅ #" + clean + " 已新增並儲存到 GitHub！");
+    else alert("⚠️ 新增成功但儲存失敗，請手動更新 GitHub");
+  });
 }
 
-/* ── BASELINE ── */
+/* ── ADD KEYWORD ── */
+function addKeyword() {
+  const t = prompt("輸入 Keyword（不需要加 #）");
+  if (!t) return;
+  const clean = t.trim();
+
+  const kwList = document.querySelector(".kw-list");
+  const addBtn = kwList.querySelector(".kw-add");
+
+  const el = document.createElement("div");
+  el.style.cssText = "background:white;border-radius:16px;padding:16px 18px;border:1px solid rgba(200,66,90,0.07);box-shadow:0 2px 10px rgba(200,66,90,0.06);display:flex;align-items:center;justify-content:space-between;";
+  el.innerHTML = `
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--rose-deep);">${clean}</div>
+      <div style="font-size:11px;color:var(--text-soft);margin-top:3px;">Keyword 搜尋量</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--rose);" class="kw-count">載入中…</div>
+      <div style="font-size:11px;color:var(--text-soft);">Total Tweets</div>
+    </div>
+  `;
+  kwList.insertBefore(el, addBtn);
+
+  fetchTag(clean).then(data => {
+    if (!data) return;
+    const parsed = parse(data);
+    if (parsed) el.querySelector(".kw-count").textContent = fmt(parsed.tweetCount);
+  });
+
+  saveToGitHub().then(ok => {
+    if (ok) alert("✅ " + clean + " 已新增並儲存到 GitHub！");
+    else alert("⚠️ 新增成功但儲存失敗，請手動更新 GitHub");
+  });
+}
 let baseline = JSON.parse(localStorage.getItem("jjj_baseline") || "{}");
 
 function getEndTime(startTime) {
@@ -1135,35 +1199,6 @@ function checkDailyReset(tag, currentCount) {
   document.getElementById("today-count").textContent = diff >= 0 ? "+" + fmt(diff) : fmt(diff);
 }
 
-
-function addKeyword() {
-  const t = prompt("輸入 Keyword（不需要加 #）");
-  if (!t) return;
-  const clean = t.trim();
-
-  const kwList = document.querySelector(".kw-list");
-  const addBtn = kwList.querySelector(".kw-add");
-
-  const el = document.createElement("div");
-  el.style.cssText = "background:white;border-radius:16px;padding:16px 18px;border:1px solid rgba(200,66,90,0.07);box-shadow:0 2px 10px rgba(200,66,90,0.06);display:flex;align-items:center;justify-content:space-between;";
-  el.innerHTML = `
-    <div>
-      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--rose-deep);">${clean}</div>
-      <div style="font-size:11px;color:var(--text-soft);margin-top:3px;">Keyword 搜尋量</div>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--rose);" class="kw-count">載入中…</div>
-      <div style="font-size:11px;color:var(--text-soft);">Total Tweets</div>
-    </div>
-  `;
-  kwList.insertBefore(el, addBtn);
-
-  fetchTag(clean).then(data => {
-    if (!data) return;
-    const parsed = parse(data);
-    if (parsed) el.querySelector(".kw-count").textContent = fmt(parsed.tweetCount);
-  });
-}
 
 window.addEventListener("DOMContentLoaded", () => {
   fetchAndRender(activeTag);
