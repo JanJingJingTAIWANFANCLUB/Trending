@@ -1,188 +1,534 @@
-
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jewel's TAIWAN · X Trending</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);background:transparent}
-.app{max-width:480px;margin:0 auto;padding:16px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#f4a0b0,#c0506a);display:flex;align-items:center;justify-content:center;font-size:22px}
-.logo-text{font-size:15px;font-weight:500;color:var(--color-text-primary)}
-.logo-sub{font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500}
-.tabs{display:flex;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:3px;margin-bottom:16px;gap:2px}
-.tab{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:10px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);transition:all .18s;white-space:nowrap}
-.tab.active{background:#b5344a;color:#fff;font-weight:500}
-.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:12px}
-.card-title{font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500;margin-bottom:10px;text-transform:uppercase}
-.hero-card{background:linear-gradient(135deg,#b5344a 0%,#7a1a2e 100%);border-radius:var(--border-radius-lg);padding:18px 20px;margin-bottom:12px;color:#fff}
-.hero-label{font-size:10px;letter-spacing:2px;opacity:.8;margin-bottom:6px}
-.hero-num{font-size:38px;font-weight:500;letter-spacing:-1px;min-height:46px;display:flex;align-items:center}
-.hero-sub{font-size:12px;opacity:.8;margin-top:3px}
-.hero-row{display:flex;justify-content:space-between;margin-top:14px}
-.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-.pill{padding:5px 13px;border-radius:999px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:#b5344a;transition:all .18s}
-.pill.on,.pill.active-pill{background:#b5344a;color:#fff;border-color:#b5344a;font-weight:500}
-.pill.add-pill{border-style:dashed;color:#b5344a}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat-cell{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
-.stat-icon{font-size:18px;margin-bottom:4px}
-.stat-val{font-size:15px;font-weight:500;color:#b5344a}
-.stat-lbl{font-size:9px;color:var(--color-text-secondary);letter-spacing:.5px;margin-top:2px}
-.edit-section{background:var(--color-background-secondary);border:1px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:12px}
-.edit-title{font-size:12px;color:#b5344a;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.field-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.field-group3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
-.field-label{font-size:10px;color:var(--color-text-secondary);margin-bottom:3px;letter-spacing:.5px}
-input[type=text]{width:100%;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
-input[type=text]:focus{border-color:#b5344a}
-.save-btn{background:#b5344a;color:#fff;border:none;border-radius:var(--border-radius-md);padding:8px 16px;font-size:13px;cursor:pointer;font-weight:500}
-.reset-btn{background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 16px;font-size:13px;cursor:pointer}
-.rank-badge{background:rgba(255,255,255,.18);border-radius:10px;padding:10px 6px;text-align:center}
-.rank-flag{font-size:18px}
-.rank-val{font-size:16px;font-weight:500}
-.rank-lbl{font-size:9px;opacity:.75;letter-spacing:.5px}
-.broadcast-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.bcast-btn{background:#b5344a;color:#fff;border:none;border-radius:var(--border-radius-md);padding:8px 14px;font-size:12px;cursor:pointer;font-weight:500}
-.bcast-reset{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 14px;font-size:12px;cursor:pointer;color:var(--color-text-primary)}
-/* Live tab */
-.live-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.2);font-size:11px;margin-bottom:10px}
-.live-dot{width:7px;height:7px;border-radius:50%;background:#4eff91;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.status-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);margin-bottom:12px;font-size:12px;color:var(--color-text-secondary)}
-.status-bar.running{background:#fff8e1;color:#b8860b}
-.status-bar.success{background:#e8f5e9;color:#2e7d32}
-.status-bar.error{background:#ffebee;color:#c62828}
-.fetch-btn{width:100%;padding:11px;border:none;border-radius:var(--border-radius-md);background:linear-gradient(135deg,#b5344a,#8b1a2e);color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px}
-.fetch-btn:disabled{opacity:.6;cursor:not-allowed}
-.auto-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:12px;font-size:13px}
-.toggle{width:40px;height:22px;border-radius:999px;border:none;cursor:pointer;position:relative;transition:background .2s}
-.toggle.on{background:#b5344a}
-.toggle.off{background:var(--color-border-secondary)}
-.toggle-knob{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
-.toggle.on .toggle-knob{left:21px}
-.toggle.off .toggle-knob{left:3px}
-.trend-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
-.trend-item:last-child{border-bottom:none}
-.trend-rank{width:28px;font-size:13px;font-weight:500;color:#b5344a}
-.trend-name{flex:1;font-size:13px;color:var(--color-text-primary);word-break:break-all}
-.trend-vol{font-size:12px;color:var(--color-text-secondary);margin-left:8px}
-.trend-hl{background:rgba(181,52,74,.12);border-radius:6px;padding:2px 6px;color:#b5344a;font-weight:500}
-.loc-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
-.loc-tab{padding:4px 12px;border-radius:999px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary)}
-.loc-tab.on{background:#b5344a;color:#fff;border-color:#b5344a}
-.worker-cfg{padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:12px;font-size:12px;color:var(--color-text-secondary);word-break:break-all}
-/* canvas */
-canvas{width:100%;height:60px}
-.trend-labels{display:flex;justify-content:space-between;margin-top:2px}
-.trend-lbl{font-size:9px;color:var(--color-text-secondary)}
-/* toast */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2c2c2a;color:#fff;padding:8px 20px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
-.toast.show{opacity:1}
-.ep-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  :root {
+    --rose: #C8425A;
+    --rose-deep: #9B2A3F;
+    --rose-light: #F2C4CE;
+    --rose-pale: #FDF0F2;
+    --rose-mid: #E87090;
+    --cream: #FEF8F8;
+    --gold: #D4956A;
+    --text-dark: #2A1018;
+    --text-mid: #6B3344;
+    --text-soft: #B07080;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', 'Noto Sans TC', sans-serif;
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,66,90,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 90% 80%, rgba(200,66,90,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0 20px;
+  }
+  .header-brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--rose-light), var(--rose));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 16px rgba(200,66,90,0.25);
+  }
+  .brand-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 700;
+    color: var(--rose-deep); line-height: 1.2; letter-spacing: -0.3px;
+  }
+  .brand-text p {
+    font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+    color: var(--text-soft); text-transform: uppercase; margin-top: 1px;
+  }
+  .header-star { color: var(--rose-light); font-size: 22px; animation: spin 8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    background: white;
+    border-radius: 14px;
+    padding: 4px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(200,66,90,0.08);
+    border: 1px solid rgba(200,66,90,0.08);
+    gap: 2px;
+  }
+  .tab {
+    flex: 1; padding: 9px 4px;
+    border: none; background: transparent; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+    color: var(--text-soft); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    transition: all 0.25s ease; white-space: nowrap;
+  }
+  .tab.active {
+    background: var(--rose); color: white;
+    box-shadow: 0 3px 12px rgba(200,66,90,0.35);
+  }
+
+  /* ── Tab content ── */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Chips / pills ── */
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .chip {
+    padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid var(--rose-light); background: white;
+    font-size: 12px; font-weight: 600; color: var(--text-mid);
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.2px;
+  }
+  .chip.active {
+    background: var(--rose); border-color: var(--rose); color: white;
+    box-shadow: 0 2px 10px rgba(200,66,90,0.3);
+  }
+  .chip.add { border-style: dashed; color: var(--text-soft); }
+
+  /* ── Hero stat ── */
+  .stat-hero {
+    background: linear-gradient(135deg, var(--rose-deep) 0%, var(--rose) 60%, var(--rose-mid) 100%);
+    border-radius: 20px; padding: 24px 24px 20px; margin-bottom: 12px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(155,42,63,0.3);
+    animation: fadeUp 0.5s ease both;
+  }
+  .stat-hero::before {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px; background: rgba(255,255,255,0.07); border-radius: 50%;
+  }
+  .stat-hero::after {
+    content: ''; position: absolute; bottom: -40px; right: 30px;
+    width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 50%;
+  }
+  .stat-hero-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .stat-hero-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px; font-weight: 900; color: white;
+    line-height: 1; letter-spacing: -2px; min-height: 60px;
+    display: flex; align-items: center;
+  }
+  .stat-hero-num span { font-size: 28px; letter-spacing: -1px; }
+  .stat-hero-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 8px; }
+
+  /* ── Stat grid 2-col ── */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .stat-card {
+    background: white; border-radius: 16px; padding: 16px;
+    border: 1px solid rgba(200,66,90,0.07);
+    box-shadow: 0 2px 10px rgba(200,66,90,0.06);
+    animation: fadeUp 0.5s ease both;
+  }
+  .stat-card-label {
+    font-size: 9px; font-weight: 600; letter-spacing: 1.8px;
+    color: var(--text-soft); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .stat-card-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700; color: var(--rose-deep); letter-spacing: -0.5px;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    color: var(--text-soft); text-transform: uppercase;
+    margin: 20px 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, var(--rose-light), transparent);
+  }
+
+  /* ── Ranking grid ── */
+  .ranking-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+  .rank-card {
+    background: white; border-radius: 14px; padding: 14px 10px; text-align: center;
+    border: 1px solid rgba(200,66,90,0.07);
+    box-shadow: 0 2px 8px rgba(200,66,90,0.05); animation: fadeUp 0.6s ease both;
+  }
+  .rank-card-icon { font-size: 18px; margin-bottom: 6px; }
+  .rank-card-num { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--rose-deep); }
+  .rank-card-label { font-size: 9px; font-weight: 600; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; margin-top: 3px; }
+
+  /* ── Country box ── */
+  .country-box {
+    background: white; border-radius: 16px; padding: 16px;
+    border: 1px solid rgba(200,66,90,0.07);
+    box-shadow: 0 2px 10px rgba(200,66,90,0.06);
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+    animation: fadeUp 0.65s ease both;
+  }
+  .country-tag {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--rose-pale); border-radius: 20px; padding: 5px 12px;
+    font-size: 11px; font-weight: 500; color: var(--text-mid);
+  }
+  .country-tag .rank { font-weight: 700; color: var(--rose); }
+
+  /* ── Trend card ── */
+  .trend-card {
+    background: white; border-radius: 16px; padding: 16px;
+    border: 1px solid rgba(200,66,90,0.07);
+    box-shadow: 0 2px 10px rgba(200,66,90,0.06); animation: fadeUp 0.7s ease both;
+  }
+  .trend-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .trend-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--text-dark); }
+  .trend-badge { background: var(--rose-pale); color: var(--rose); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 10px; letter-spacing: 0.5px; }
+  .chart-wrap { position: relative; height: 100px; }
+
+  /* ── Edit section (manual input) ── */
+  .edit-section {
+    background: var(--rose-pale); border: 1.5px dashed var(--rose-light);
+    border-radius: 16px; padding: 16px; margin-bottom: 12px;
+  }
+  .edit-title {
+    font-size: 12px; font-weight: 700; color: var(--rose-deep);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+    letter-spacing: 0.3px;
+  }
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .field-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .field-label { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-soft); margin-bottom: 4px; }
+  input[type=text] {
+    width: 100%; padding: 8px 12px;
+    border: 1px solid rgba(200,66,90,0.2); border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    background: white; color: var(--text-dark); outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type=text]:focus { border-color: var(--rose); }
+  .btn-save {
+    background: var(--rose); color: white; border: none; border-radius: 10px;
+    padding: 9px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.88; }
+  .btn-reset {
+    background: white; color: var(--text-mid);
+    border: 1px solid rgba(200,66,90,0.2); border-radius: 10px;
+    padding: 9px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+    font-weight: 500; cursor: pointer;
+  }
+
+  /* ── Live tab ── */
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 12px; border-radius: 999px; background: rgba(255,255,255,0.2);
+    font-size: 11px; margin-bottom: 10px; font-weight: 600;
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4eff91; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .worker-tag {
+    background: white; border-radius: 12px; padding: 10px 14px;
+    border: 1px solid rgba(200,66,90,0.1); margin-bottom: 12px;
+    font-size: 11px; color: var(--text-soft); word-break: break-all;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .worker-tag strong { color: var(--rose-deep); font-weight: 600; }
+
+  .auto-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; background: white; border-radius: 14px;
+    border: 1px solid rgba(200,66,90,0.07); margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(200,66,90,0.05);
+  }
+  .auto-row-label { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+  .auto-row-sub { font-size: 11px; color: var(--text-soft); margin-top: 2px; }
+
+  .toggle {
+    width: 42px; height: 24px; border-radius: 999px; border: none; cursor: pointer;
+    position: relative; transition: background 0.25s; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--rose); }
+  .toggle.off { background: #DDD; }
+  .toggle-knob {
+    position: absolute; top: 4px; width: 16px; height: 16px;
+    border-radius: 50%; background: white; transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle.on .toggle-knob { left: 22px; }
+  .toggle.off .toggle-knob { left: 4px; }
+
+  .fetch-btn {
+    width: 100%; padding: 13px; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, var(--rose-deep), var(--rose));
+    color: white; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 12px; box-shadow: 0 4px 16px rgba(155,42,63,0.3);
+    transition: opacity 0.2s;
+  }
+  .fetch-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .status-bar {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    border-radius: 12px; background: var(--rose-pale);
+    margin-bottom: 12px; font-size: 12px; color: var(--text-mid);
+    border: 1px solid rgba(200,66,90,0.1);
+  }
+  .status-bar.running { background: #FFF8E1; color: #856404; border-color: #F0D060; }
+  .status-bar.success { background: #E8F5E9; color: #2E7D32; border-color: #A5D6A7; }
+  .status-bar.error   { background: #FFEBEE; color: #C62828; border-color: #EF9A9A; }
+
+  .loc-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .loc-chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+    border: 1px solid rgba(200,66,90,0.15); background: white; color: var(--text-soft);
+    font-weight: 500; transition: all 0.2s;
+  }
+  .loc-chip.on { background: var(--rose); border-color: var(--rose); color: white; }
+
+  .trend-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 0.5px solid rgba(200,66,90,0.08);
+  }
+  .trend-item:last-child { border-bottom: none; }
+  .trend-rank { width: 28px; font-size: 13px; font-weight: 700; color: var(--rose); }
+  .trend-name { flex: 1; font-size: 13px; color: var(--text-dark); word-break: break-all; }
+  .trend-name.hl { background: rgba(200,66,90,0.1); border-radius: 6px; padding: 2px 6px; color: var(--rose); font-weight: 600; }
+  .trend-vol { font-size: 12px; color: var(--text-soft); margin-left: 8px; }
+
+  /* ── Broadcast ── */
+  .bcast-card {
+    background: white; border-radius: 16px; padding: 16px;
+    border: 1px solid rgba(200,66,90,0.07);
+    box-shadow: 0 2px 10px rgba(200,66,90,0.06); margin-bottom: 12px;
+  }
+  .bcast-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .bcast-info-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; color: var(--text-soft); text-transform: uppercase; }
+  .bcast-info-val { font-size: 13px; color: var(--text-mid); margin-top: 3px; }
+  .btn-bcast {
+    background: var(--rose); color: white; border: none; border-radius: 10px;
+    padding: 9px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  }
+  .btn-bcast.on { background: var(--rose-deep); }
+  .btn-bcast-reset {
+    background: var(--rose-pale); color: var(--rose);
+    border: 1px solid var(--rose-light); border-radius: 10px;
+    padding: 7px 14px; font-size: 11px; font-weight: 600; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; margin-top: 6px;
+  }
+
+  /* ── History ── */
+  .ep-panel { display: none; }
+  .ep-panel.active { display: block; }
+
+  /* ── Settings ── */
+  .settings-card {
+    background: white; border-radius: 16px; padding: 16px;
+    border: 1px solid rgba(200,66,90,0.07);
+    box-shadow: 0 2px 10px rgba(200,66,90,0.06); margin-bottom: 12px;
+  }
+
+  /* ── Misc ── */
+  .update-note {
+    text-align: center; font-size: 11px; color: var(--text-soft);
+    margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .kw-block {
+    background: white; border-radius: 16px; padding: 16px 18px;
+    border: 1px solid rgba(200,66,90,0.07);
+    box-shadow: 0 2px 10px rgba(200,66,90,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+  }
 </style>
+</head>
+<body>
+<div class="container">
 
-<h2 class="sr-only">Jewel's TAIWAN · X Trending </h2>
-
-<div class="app">
+  <!-- ── Header ── -->
   <div class="header">
-    <div class="logo">
-      <div class="logo-icon">🐱</div>
-      <div>
-        <div class="logo-text">Jewel's TAIWAN</div>
-        <div class="logo-sub">X TRENDING</div>
+    <div class="header-brand">
+      <div class="logo">🐱</div>
+      <div class="brand-text">
+        <h1>Jewel's TAIWAN</h1>
+        <p>X Trending</p>
       </div>
     </div>
-    <i class="ti ti-star" style="font-size:20px;color:#e0a0b0" aria-hidden="true"></i>
+    <div class="header-star">✦</div>
   </div>
 
+  <!-- ── Tabs ── -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('realtime',this)"><i class="ti ti-bolt" aria-hidden="true"></i> 即時</button>
-    <button class="tab" onclick="switchTab('live',this)"><i class="ti ti-antenna" aria-hidden="true"></i> Live抓取</button>
-    <button class="tab" onclick="switchTab('history',this)"><i class="ti ti-chart-line" aria-hidden="true"></i> 歷史</button>
-    <button class="tab" onclick="switchTab('settings',this)"><i class="ti ti-settings" aria-hidden="true"></i> 設定</button>
+    <button class="tab active" onclick="switchTab('realtime',this)">⚡ 即時</button>
+    <button class="tab" onclick="switchTab('live',this)">📡 Live</button>
+    <button class="tab" onclick="switchTab('history',this)">📈 歷史</button>
+    <button class="tab" onclick="switchTab('settings',this)">⚙️ 設定</button>
   </div>
 
-  <!-- ══ REALTIME TAB ══ -->
-  <div id="tab-realtime">
-    <div class="pill-row" id="rt-pills"></div>
+  <!-- ══════════════════════════════════
+       REALTIME TAB
+  ══════════════════════════════════ -->
+  <div class="tab-content active" id="tab-realtime">
 
-    <div class="hero-card">
-      <div class="hero-label" id="rt-hero-label">TOTAL TWEETS · #ENEMIESWITHBENEFITSEP5</div>
-      <div class="hero-num" id="rt-hero-num">—</div>
-      <div class="hero-sub" id="rt-hero-sub">Engagement — · Users —</div>
-      <div class="hero-row">
-        <div><div style="font-size:11px;opacity:.7">今日新增</div><div style="font-size:18px;font-weight:500" id="rt-today">+0</div></div>
-        <div style="text-align:right"><div style="font-size:11px;opacity:.7">重置時間</div><div style="font-size:13px">每天 00:00</div></div>
-      </div>
-    </div>
+    <!-- Hashtag chips -->
+    <div class="chip-row" id="rt-chips"></div>
 
-    <div class="edit-section">
-      <div class="edit-title"><i class="ti ti-pencil" style="font-size:14px" aria-hidden="true"></i> 手動輸入即時數據</div>
-      <div class="field-group">
-        <div><div class="field-label">總推文數 (e.g. 286.6K)</div><input type="text" id="rt-input-tweets" placeholder="286.6K" oninput="previewRT()"></div>
-        <div><div class="field-label">互動數 (Engagement)</div><input type="text" id="rt-input-eng" placeholder="1.4M" oninput="previewRT()"></div>
-      </div>
-      <div class="field-group">
-        <div><div class="field-label">用戶數 (Users)</div><input type="text" id="rt-input-users" placeholder="7,600" oninput="previewRT()"></div>
-        <div><div class="field-label">今日新增</div><input type="text" id="rt-input-today" placeholder="+0" oninput="previewRT()"></div>
-      </div>
-      <div class="field-group3">
-        <div><div class="field-label">TH 排行</div><input type="text" id="rt-input-th" placeholder="#1" oninput="previewRT()"></div>
-        <div><div class="field-label">世界排行</div><input type="text" id="rt-input-world" placeholder="#11" oninput="previewRT()"></div>
-        <div><div class="field-label">TW 排行</div><input type="text" id="rt-input-tw" placeholder="#3" oninput="previewRT()"></div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="save-btn" onclick="saveRT()"><i class="ti ti-device-floppy" aria-hidden="true"></i> 儲存</button>
-        <button class="reset-btn" onclick="clearRT()">清除</button>
-      </div>
-    </div>
-
-    <div class="grid2">
-      <div class="card"><div class="card-title">USERS</div><div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="rt-stat-users">—</div></div>
-      <div class="card"><div class="card-title">ENGAGEMENT</div><div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="rt-stat-eng">—</div></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">USERS & RANKING</div>
-      <div class="grid3">
-        <div class="stat-cell"><div class="stat-icon">👥</div><div class="stat-val" id="rt-rank-sample">—</div><div class="stat-lbl">USERS (SAMPLE)</div></div>
-        <div class="stat-cell"><div class="stat-icon">🇹🇼</div><div class="stat-val" id="rt-rank-tw">—</div><div class="stat-lbl">TW RANK</div></div>
-        <div class="stat-cell"><div class="stat-icon">🇹🇭</div><div class="stat-val" id="rt-rank-th">—</div><div class="stat-lbl">TH RANK</div></div>
-        <div class="stat-cell"><div class="stat-icon">🌐</div><div class="stat-val" id="rt-rank-world">—</div><div class="stat-lbl">WORLD RANK</div></div>
-        <div class="stat-cell"><div class="stat-icon">🌍</div><div class="stat-val">—</div><div class="stat-lbl">COUNTRIES</div></div>
-        <div class="stat-cell"><div class="stat-icon">⚡</div><div class="stat-val">—</div><div class="stat-lbl">PEAK/HR</div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">📺 播出累積計算</div>
-      <div class="broadcast-row">
-        <div><div style="font-size:11px;color:var(--color-text-secondary)">播出時段</div><div style="font-size:13px;color:var(--color-text-primary)" id="bcast-time">尚未設定</div></div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <button class="bcast-btn" id="bcast-btn" onclick="toggleBcast()"><i class="ti ti-player-play" aria-hidden="true"></i> 播出開始</button>
-          <button class="bcast-reset" onclick="resetBcast()"><i class="ti ti-refresh" aria-hidden="true"></i> 重設</button>
+    <!-- Hero -->
+    <div class="stat-hero">
+      <div class="stat-hero-label" id="rt-hero-label">Total Tweets</div>
+      <div class="stat-hero-num" id="rt-hero-num">—</div>
+      <div class="stat-hero-sub" id="rt-hero-sub">Engagement — · Users —</div>
+      <div style="margin-top:12px;background:rgba(255,255,255,0.12);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,0.6);text-transform:uppercase;">今日新增</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;margin-top:2px;" id="rt-today">+0</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,0.6);text-transform:uppercase;">重置時間</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;">每天 00:00</div>
         </div>
       </div>
-      <div class="grid2">
-        <div class="stat-cell"><div class="stat-lbl" style="margin-bottom:4px">播出後新增</div><div class="stat-val" id="bcast-new">—</div></div>
-        <div class="stat-cell"><div class="stat-lbl" style="margin-bottom:4px">基準時推文數</div><div class="stat-val" id="bcast-base">—</div></div>
-      </div>
-      <div style="margin-top:10px;font-size:12px;color:#b5344a;font-weight:500">統計結束時間：隔天 18:00 自動結束</div>
-      <div style="font-size:10px;color:var(--color-text-secondary);margin-top:3px">播出前按「播出開始」記錄基準，隔天下午 6 點自動停止累積</div>
     </div>
+
+    <!-- Manual input -->
+    <div class="edit-section">
+      <div class="edit-title">✏️ 手動輸入即時數據</div>
+      <div class="field-grid">
+        <div><div class="field-label">總推文數</div><input type="text" id="rt-in-tweets" placeholder="286.6K" oninput="previewRT()"></div>
+        <div><div class="field-label">互動數 (Engagement)</div><input type="text" id="rt-in-eng" placeholder="1.4M" oninput="previewRT()"></div>
+      </div>
+      <div class="field-grid">
+        <div><div class="field-label">用戶數 (Users)</div><input type="text" id="rt-in-users" placeholder="7,600" oninput="previewRT()"></div>
+        <div><div class="field-label">今日新增</div><input type="text" id="rt-in-today" placeholder="+0" oninput="previewRT()"></div>
+      </div>
+      <div class="field-grid3">
+        <div><div class="field-label">TH 排行</div><input type="text" id="rt-in-th" placeholder="#1" oninput="previewRT()"></div>
+        <div><div class="field-label">世界排行</div><input type="text" id="rt-in-world" placeholder="#11" oninput="previewRT()"></div>
+        <div><div class="field-label">TW 排行</div><input type="text" id="rt-in-tw" placeholder="#3" oninput="previewRT()"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-save" onclick="saveRT()">💾 儲存</button>
+        <button class="btn-reset" onclick="clearRT()">清除</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-card-label">Users</div><div class="stat-card-num" id="rt-stat-users">—</div></div>
+      <div class="stat-card"><div class="stat-card-label">Engagement</div><div class="stat-card-num" id="rt-stat-eng">—</div></div>
+    </div>
+
+    <!-- Ranking -->
+    <div class="section-title">👥 Users & Ranking</div>
+    <div class="ranking-grid">
+      <div class="rank-card"><div class="rank-card-icon">👥</div><div class="rank-card-num" id="rt-rank-users">—</div><div class="rank-card-label">Users</div></div>
+      <div class="rank-card"><div class="rank-card-icon">🇹🇼</div><div class="rank-card-num" id="rt-rank-tw">—</div><div class="rank-card-label">TW Rank</div></div>
+      <div class="rank-card"><div class="rank-card-icon">🇹🇭</div><div class="rank-card-num" id="rt-rank-th">—</div><div class="rank-card-label">TH Rank</div></div>
+      <div class="rank-card"><div class="rank-card-icon">🌐</div><div class="rank-card-num" id="rt-rank-world">—</div><div class="rank-card-label">World Rank</div></div>
+      <div class="rank-card"><div class="rank-card-icon">🌍</div><div class="rank-card-num">—</div><div class="rank-card-label">Countries</div></div>
+      <div class="rank-card"><div class="rank-card-icon">⚡</div><div class="rank-card-num">—</div><div class="rank-card-label">Peak/Hr</div></div>
+    </div>
+
+    <!-- Country -->
+    <div class="section-title">🌐 Country Rankings</div>
+    <div class="country-box">
+      <div class="country-tag">🌍 Worldwide <span class="rank">—</span></div>
+      <div class="country-tag">🇹🇼 Taiwan <span class="rank">—</span></div>
+      <div class="country-tag">🇹🇭 Thailand <span class="rank">—</span></div>
+      <div class="country-tag">🇻🇳 Vietnam <span class="rank">—</span></div>
+      <div class="country-tag">🇵🇭 Philippines <span class="rank">—</span></div>
+      <div class="country-tag">🇮🇩 Indonesia <span class="rank">—</span></div>
+    </div>
+
+    <!-- Trend chart -->
+    <div class="section-title">📈 Cumulative Trend</div>
+    <div class="trend-card">
+      <div class="trend-header">
+        <div class="trend-title">Tweet Volume</div>
+        <div class="trend-badge">每小時</div>
+      </div>
+      <div class="chart-wrap"><canvas id="trendCanvas"></canvas></div>
+    </div>
+
+    <!-- 播出累積 -->
+    <div class="section-title">📺 播出累積計算</div>
+    <div class="bcast-card">
+      <div class="bcast-row">
+        <div>
+          <div class="bcast-info-label">播出時段</div>
+          <div class="bcast-info-val" id="rt-bcast-time">尚未設定</div>
+          <div style="font-size:11px;color:var(--text-soft);margin-top:2px;" id="rt-bcast-end"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <button class="btn-bcast" id="rt-bcast-btn" onclick="toggleBcast()">📺 播出開始</button>
+          <button class="btn-bcast-reset" onclick="resetBcast()">🔄 重設</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--rose-pale);border-radius:12px;padding:12px;">
+          <div class="bcast-info-label">播出後新增</div>
+          <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--rose);margin-top:4px;" id="rt-bcast-new">—</div>
+        </div>
+        <div style="background:var(--rose-pale);border-radius:12px;padding:12px;">
+          <div class="bcast-info-label">基準時推文數</div>
+          <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--rose-deep);margin-top:4px;" id="rt-bcast-base">—</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-soft);margin-top:10px;text-align:center;">播出前按「播出開始」記錄基準，隔天下午 6 點自動停止累積</div>
+    </div>
+
+    <div class="update-note">🕐 更新時間：<span id="rt-update-time">—</span></div>
   </div>
 
-  <!-- ══ LIVE TAB ══ -->
-  <div id="tab-live" style="display:none">
-    <div class="worker-cfg">
-      <i class="ti ti-cloud" style="font-size:13px;vertical-align:-1px" aria-hidden="true"></i>
-      Worker: <strong style="color:#b5344a" id="live-worker-label">—</strong>
+  <!-- ══════════════════════════════════
+       LIVE TAB
+  ══════════════════════════════════ -->
+  <div class="tab-content" id="tab-live">
+
+    <div class="worker-tag">
+      ☁️ Worker：<strong id="live-worker-label">—</strong>
     </div>
 
     <div class="auto-row">
       <div>
-        <div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">自動更新</div>
-        <div style="font-size:11px;color:var(--color-text-secondary)" id="auto-interval-label">每 5 分鐘自動抓取</div>
+        <div class="auto-row-label">自動更新</div>
+        <div class="auto-row-sub" id="auto-sub">每 5 分鐘自動抓取</div>
       </div>
       <button class="toggle off" id="auto-toggle" onclick="toggleAuto()" aria-label="切換自動更新">
         <div class="toggle-knob"></div>
@@ -190,163 +536,141 @@ canvas{width:100%;height:60px}
     </div>
 
     <button class="fetch-btn" id="fetch-btn" onclick="startFetch()">
-      <i class="ti ti-refresh" aria-hidden="true"></i> 立即抓取 X 趨勢
+      🔄 立即抓取 X 趨勢
     </button>
 
     <div class="status-bar" id="status-bar">
-      <i class="ti ti-info-circle" aria-hidden="true"></i>
-      <span id="status-text">按下「立即抓取」開始</span>
+      ℹ️ <span id="status-text">按下「立即抓取」開始</span>
     </div>
 
-    <div class="card">
-      <div class="card-title">追蹤的 Hashtag</div>
-      <div class="pill-row" id="ht-pills"></div>
-    </div>
+    <!-- Hashtag 過濾 -->
+    <div class="section-title">🔖 追蹤的 Hashtag</div>
+    <div class="chip-row" id="live-ht-chips"></div>
 
-    <div class="card">
-      <div class="card-title">地區排行</div>
-      <div class="loc-tabs" id="loc-tabs">
-        <button class="loc-tab on" onclick="switchLoc('all',this)">全部</button>
-        <button class="loc-tab" onclick="switchLoc('taiwan',this)">🇹🇼 Taiwan</button>
-        <button class="loc-tab" onclick="switchLoc('thailand',this)">🇹🇭 Thailand</button>
-        <button class="loc-tab" onclick="switchLoc('worldwide',this)">🌐 Worldwide</button>
+    <!-- Match card (show when found) -->
+    <div id="match-card" style="display:none;margin-bottom:12px;">
+      <div class="stat-hero" style="margin-bottom:0;">
+        <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+        <div class="stat-hero-label" id="match-label">TRENDING NOW</div>
+        <div class="stat-hero-num" id="match-num">—</div>
+        <div class="stat-hero-sub" id="match-sub">—</div>
       </div>
+    </div>
+
+    <!-- 地區 -->
+    <div class="section-title">🗺️ 地區排行</div>
+    <div class="loc-row" id="loc-tabs">
+      <button class="loc-chip on" onclick="switchLoc('all',this)">全部</button>
+      <button class="loc-chip" onclick="switchLoc('taiwan',this)">🇹🇼 Taiwan</button>
+      <button class="loc-chip" onclick="switchLoc('thailand',this)">🇹🇭 Thailand</button>
+      <button class="loc-chip" onclick="switchLoc('worldwide',this)">🌐 Worldwide</button>
+    </div>
+
+    <div class="trend-card" style="padding:12px 16px;">
       <div id="trends-list">
-        <div style="text-align:center;padding:24px;color:var(--color-text-secondary);font-size:13px">
-          <i class="ti ti-antenna" style="font-size:28px;display:block;margin-bottom:8px" aria-hidden="true"></i>
-          尚未抓取數據
+        <div style="text-align:center;padding:24px;color:var(--text-soft);font-size:13px;">
+          📡<br><br>尚未抓取數據
         </div>
       </div>
     </div>
 
-    <div class="card" id="match-card" style="display:none">
-      <div class="hero-card" style="margin-bottom:0">
-        <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-        <div class="hero-label" id="match-label">TRENDING MATCHES</div>
-        <div class="hero-num" id="match-num">—</div>
-        <div class="hero-sub" id="match-sub">—</div>
-      </div>
-    </div>
-
-    <div style="text-align:center;font-size:10px;color:var(--color-text-secondary);margin-bottom:12px">
-      <i class="ti ti-clock" aria-hidden="true"></i> 上次更新：<span id="last-update">—</span>
+    <div style="text-align:center;font-size:11px;color:var(--text-soft);margin-top:8px;">
+      上次更新：<span id="live-last-update">—</span>
     </div>
   </div>
 
-  <!-- ══ HISTORY TAB ══ -->
-  <div id="tab-history" style="display:none">
-    <div style="font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500;margin-bottom:8px">🎬 ENEMIESWITHBENEFITS · 劇集數據</div>
-    <div class="ep-tabs" id="ep-tabs"></div>
+  <!-- ══════════════════════════════════
+       HISTORY TAB
+  ══════════════════════════════════ -->
+  <div class="tab-content" id="tab-history">
+    <div class="section-title">🎬 EnemiesWithBenefits · 劇集數據</div>
 
-    <div id="hist-hero" class="hero-card" style="display:none">
-      <div class="hero-label" id="hist-tag-label">HASHTAG · #ENEMIESWITHBENEFITSEP5</div>
-      <div class="hero-num" id="hist-tweets">—</div>
-      <div class="hero-sub" id="hist-sub">Engagement — · Users —</div>
-      <div class="grid3" style="margin-top:14px">
-        <div class="rank-badge"><div class="rank-flag">🇹🇭</div><div class="rank-val" id="hist-th">—</div><div class="rank-lbl">TH RANK</div></div>
-        <div class="rank-badge"><div class="rank-flag">🌐</div><div class="rank-val" id="hist-world">—</div><div class="rank-lbl">WORLD RANK</div></div>
-        <div class="rank-badge"><div class="rank-flag">🇹🇼</div><div class="rank-val" id="hist-tw">—</div><div class="rank-lbl">TW RANK</div></div>
-      </div>
+    <div class="chip-row" id="ep-chips">
+      <button class="chip active" onclick="switchEP('EP6',this)">#EP6 🔜</button>
+      <button class="chip" onclick="switchEP('EP5',this)">#EP5</button>
+      <button class="chip" onclick="switchEP('EP4',this)">#EP4</button>
+      <button class="chip" onclick="switchEP('EP3',this)">#EP3</button>
+      <button class="chip" onclick="switchEP('EP2',this)">#EP2</button>
+      <button class="chip" onclick="switchEP('EP1',this)">#EP1</button>
     </div>
 
-    <div id="hist-kw-section" style="display:none">
-      <div style="font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500;margin-bottom:8px" id="hist-kw-title">KEYWORD · EWB EP</div>
-      <div class="card">
-        <div class="field-group" style="margin-bottom:0">
-          <div><div class="stat-lbl">TOTAL TWEETS</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-tweets">—</div></div>
-          <div><div class="stat-lbl">ENGAGEMENT</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-eng">—</div></div>
-          <div><div class="stat-lbl">TH RANK</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-th">—</div></div>
-          <div><div class="stat-lbl">WORLD RANK</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-world">—</div></div>
-          <div><div class="stat-lbl">TW RANK</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-tw">—</div></div>
-          <div><div class="stat-lbl">USERS</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-users">—</div></div>
-        </div>
-      </div>
-    </div>
+    <div id="ep-display"></div>
 
-    <div class="edit-section" id="hist-edit" style="display:none">
-      <div class="edit-title"><i class="ti ti-pencil" style="font-size:14px" aria-hidden="true"></i> 手動輸入 / 編輯劇集數據</div>
-      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Hashtag 數據</div>
-      <div class="field-group">
+    <!-- 手動輸入劇集 -->
+    <div class="edit-section" id="hist-edit">
+      <div class="edit-title">✏️ 手動輸入 / 編輯劇集數據</div>
+      <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px;font-weight:600;">Hashtag 數據</div>
+      <div class="field-grid">
         <div><div class="field-label">總推文數</div><input type="text" id="h-tweets" placeholder="286.6K"></div>
         <div><div class="field-label">互動數</div><input type="text" id="h-eng" placeholder="1.4M"></div>
       </div>
-      <div class="field-group3">
+      <div class="field-grid3">
         <div><div class="field-label">TH 排行</div><input type="text" id="h-th" placeholder="#1"></div>
         <div><div class="field-label">世界排行</div><input type="text" id="h-world" placeholder="#11"></div>
         <div><div class="field-label">TW 排行</div><input type="text" id="h-tw" placeholder="#3"></div>
       </div>
-      <div class="field-group">
+      <div class="field-grid">
         <div><div class="field-label">用戶數</div><input type="text" id="h-users" placeholder="7,600"></div>
       </div>
-      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;margin-top:4px">Keyword 數據</div>
-      <div class="field-group">
+      <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px;margin-top:4px;font-weight:600;">Keyword 數據</div>
+      <div class="field-grid">
         <div><div class="field-label">Keyword 推文數</div><input type="text" id="h-kw-tweets" placeholder="174.5K"></div>
         <div><div class="field-label">Keyword 互動數</div><input type="text" id="h-kw-eng" placeholder="801.9K"></div>
       </div>
-      <div class="field-group3">
+      <div class="field-grid3">
         <div><div class="field-label">KW TH 排行</div><input type="text" id="h-kw-th" placeholder="#2"></div>
         <div><div class="field-label">KW 世界排行</div><input type="text" id="h-kw-world" placeholder="#12"></div>
         <div><div class="field-label">KW TW 排行</div><input type="text" id="h-kw-tw" placeholder="未進榜"></div>
       </div>
-      <div class="field-group">
+      <div class="field-grid">
         <div><div class="field-label">KW 用戶數</div><input type="text" id="h-kw-users" placeholder="5,400"></div>
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="save-btn" onclick="saveEpData()"><i class="ti ti-device-floppy" aria-hidden="true"></i> 儲存劇集數據</button>
-        <button class="reset-btn" onclick="clearEpInputs()">清除</button>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="btn-save" onclick="saveEpData()">💾 儲存劇集數據</button>
+        <button class="btn-reset" onclick="clearEpInputs()">清除</button>
       </div>
     </div>
 
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Tweet Volume</div>
-        <span style="padding:3px 12px;border-radius:999px;background:#b5344a;color:#fff;font-size:11px">每小時</span>
-      </div>
-      <canvas id="trend-canvas"></canvas>
-      <div class="trend-labels">
-        <span class="trend-lbl">15:00</span><span class="trend-lbl">17:00</span><span class="trend-lbl">22:00</span><span class="trend-lbl">0:00</span><span class="trend-lbl">11:00</span><span class="trend-lbl">16:00</span>
-      </div>
-      <div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px">24hr 趨勢</div>
-    </div>
+    <div class="update-note">🌸 數據來源 · janjingjing_th</div>
   </div>
 
-  <!-- ══ SETTINGS TAB ══ -->
-  <div id="tab-settings" style="display:none">
-    <div class="card">
-      <div class="card-title">Worker 設定</div>
-      <div class="field-label" style="margin-bottom:4px">Worker URL</div>
-      <input type="text" id="cfg-worker" style="margin-bottom:10px">
-      <div class="field-label" style="margin-bottom:4px">自動更新間隔（分鐘）</div>
-      <input type="text" id="cfg-interval" value="5" style="margin-bottom:10px">
-      <button class="save-btn" onclick="saveSettings()" style="width:100%"><i class="ti ti-device-floppy" aria-hidden="true"></i> 儲存設定</button>
+  <!-- ══════════════════════════════════
+       SETTINGS TAB
+  ══════════════════════════════════ -->
+  <div class="tab-content" id="tab-settings">
+    <div class="settings-card">
+      <div class="section-title" style="margin-top:0;">☁️ Worker 設定</div>
+      <div class="field-label" style="margin-bottom:4px;">Worker URL</div>
+      <input type="text" id="cfg-worker" style="margin-bottom:10px;">
+      <div class="field-label" style="margin-bottom:4px;">自動更新間隔（分鐘）</div>
+      <input type="text" id="cfg-interval" value="5" style="margin-bottom:12px;">
+      <button class="btn-save" onclick="saveSettings()" style="width:100%;">💾 儲存設定</button>
     </div>
-    <div class="card">
-      <div class="card-title">追蹤 Hashtag 管理</div>
+
+    <div class="settings-card">
+      <div class="section-title" style="margin-top:0;">🔖 追蹤 Hashtag 管理</div>
       <div id="ht-manage"></div>
-      <div style="display:flex;gap:6px;margin-top:10px">
-        <input type="text" id="new-ht" placeholder="#EnemiesWithBenefitsEP6" style="flex:1">
-        <button class="save-btn" onclick="addHashtag()">+ 新增</button>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="text" id="new-ht" placeholder="#EnemiesWithBenefitsEP6" style="flex:1;">
+        <button class="btn-save" onclick="addHashtag()">＋ 新增</button>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">地區設定</div>
-      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">抓取時包含的地區（需重新抓取才生效）</div>
+
+    <div class="settings-card">
+      <div class="section-title" style="margin-top:0;">🗺️ 地區設定</div>
+      <div style="font-size:12px;color:var(--text-soft);margin-bottom:8px;">抓取時包含的地區（需重新抓取才生效）</div>
       <div id="loc-manage"></div>
     </div>
   </div>
 
-  <div style="text-align:center;margin-top:16px;font-size:10px;color:var(--color-text-secondary)">
-    <i class="ti ti-clock" style="font-size:12px" aria-hidden="true"></i> 更新時間：<span id="update-time">—</span>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
+</div><!-- /container -->
 
 <script>
-// ── 統一儲存 key ──────────────────────────────────────────
-const STORE_KEY = 'jewels_tw_combined_v1';
+// ══════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════
+const STORE = 'jewels_tw_v4';
 
-// ── 預設設定 ──────────────────────────────────────────────
 let cfg = {
   workerUrl: 'https://trenging9597.janjingjingtaiwanfanclub.workers.dev',
   intervalMin: 5,
@@ -354,182 +678,177 @@ let cfg = {
   locations: ['taiwan','thailand','worldwide']
 };
 
-// ── 狀態 ──────────────────────────────────────────────────
 let state = {
-  // Realtime tab
   rtHashtags: [
-    {id:1,tag:'#JANHAE',active:false},
+    {id:1,tag:'#JANHAE',active:true},
     {id:2,tag:'#jingjingyu',active:false},
     {id:3,tag:'#JanJingJing',active:false},
-    {id:4,tag:'#EnemiesWithBenefitsEP5',active:true},
+    {id:4,tag:'#EnemiesWithBenefitsEP5',active:false},
     {id:5,tag:'#EnemiesWithBenefitsEP6',active:false},
   ],
   rtData: {},
   bcastActive: false,
   bcastBase: '',
   bcastStartTime: null,
-  // History tab
-  selectedEp: 'EP5',
+  selectedEp: 'EP6',
   epData: {
-    'EP5':{tweets:'286.6K',eng:'1.4M',users:'7,600',th:'#1',world:'#11',tw:'#3',kw:{tweets:'174.5K',eng:'801.9K',th:'#2',world:'#12',tw:'未進榜',users:'5,400'}},
-    'EP4':{tweets:'241.2K',eng:'1.1M',users:'6,200',th:'#2',world:'#15',tw:'#5',kw:{tweets:'132.1K',eng:'620.4K',th:'#3',world:'#18',tw:'#8',users:'4,100'}},
-    'EP3':{tweets:'198.4K',eng:'890K',users:'5,100',th:'#3',world:'#19',tw:'#6',kw:null},
-    'EP2':{tweets:'167.8K',eng:'742K',users:'4,400',th:'#5',world:'#24',tw:'#9',kw:null},
-    'EP1':{tweets:'143.2K',eng:'621K',users:'3,800',th:'#7',world:'#31',tw:'#12',kw:null},
     'EP6':{tweets:'',eng:'',users:'',th:'',world:'',tw:'',kw:null},
+    'EP5':{tweets:'286.6K',eng:'1.4M',users:'7,600',th:'#1',world:'#11',tw:'#3',kw:{tweets:'174.5K',eng:'801.9K',th:'#2',world:'#12',tw:'未進榜',users:'5,400'}},
+    'EP4':{tweets:'226.9K',eng:'1.2M',users:'9,700',th:'#2',world:'—',tw:'#1',kw:{tweets:'125.5K',eng:'549K',th:'#3',world:'#9',tw:'未進榜',users:'4,600'}},
+    'EP3':{tweets:'221.5K',eng:'1.3M',users:'7,700',th:'#2',world:'—',tw:'#8',kw:{tweets:'105.9K',eng:'625K',th:'#4',world:'#16',tw:'未進榜',users:'5,000'}},
+    'EP2':{tweets:'198.4K',eng:'1M',users:'6,600',th:'#1',world:'—',tw:'#7',kw:{tweets:'81.2K',eng:'394K',th:'#4',world:'#15',tw:'未進榜',users:'3,500'}},
+    'EP1':{tweets:'228.5K',eng:'1.2M',users:'9,900',th:'#4',world:'—',tw:'未進榜',kw:{tweets:'100.8K',eng:'469K',th:'#7',world:'#12',tw:'未進榜',users:'5,700'}},
   },
-  // Live tab
-  runId: null,
-  autoTimer: null,
-  autoOn: false,
+  // Live
   rawData: [],
-  filteredData: [],
   currentLoc: 'all',
-  activeTab: 'realtime'
+  autoOn: false,
+  autoTimer: null,
+  runId: null,
 };
 
-const epNames = ['EP6','EP5','EP4','EP3','EP2','EP1'];
-const kwNames = ['SIXTH','FIFTH','FOURTH','THIRD','SECOND','FIRST'];
-
-// ── 儲存 / 載入 ───────────────────────────────────────────
 function loadStore() {
   try {
-    const s = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+    const s = JSON.parse(localStorage.getItem(STORE) || '{}');
     if (s.cfg) Object.assign(cfg, s.cfg);
     if (s.state) {
-      Object.assign(state, s.state);
-      // rawData / filteredData / timers are runtime-only, don't restore
-      state.rawData = [];
-      state.filteredData = [];
-      state.runId = null;
-      state.autoTimer = null;
-      state.autoOn = false;
+      const saved = s.state;
+      // merge carefully, don't overwrite runtime fields
+      ['rtHashtags','rtData','bcastActive','bcastBase','bcastStartTime','selectedEp','epData'].forEach(k => {
+        if (saved[k] !== undefined) state[k] = saved[k];
+      });
     }
   } catch(e){}
 }
 
 function saveStore() {
   try {
-    const persist = Object.assign({}, state);
-    // don't persist runtime live data
-    delete persist.rawData;
-    delete persist.filteredData;
-    delete persist.runId;
-    delete persist.autoTimer;
-    localStorage.setItem(STORE_KEY, JSON.stringify({cfg, state: persist}));
+    const persist = {
+      rtHashtags: state.rtHashtags,
+      rtData: state.rtData,
+      bcastActive: state.bcastActive,
+      bcastBase: state.bcastBase,
+      bcastStartTime: state.bcastStartTime,
+      selectedEp: state.selectedEp,
+      epData: state.epData,
+    };
+    localStorage.setItem(STORE, JSON.stringify({cfg, state: persist}));
   } catch(e){}
 }
 
-// ── Toast ─────────────────────────────────────────────────
 function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg || '儲存成功';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  let t = document.getElementById('_toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2A1018;color:#fff;padding:9px 22px;border-radius:999px;font-size:13px;font-family:DM Sans,sans-serif;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2200);
 }
 
-// ── Tab 切換 ──────────────────────────────────────────────
-function switchTab(tab, el) {
-  state.activeTab = tab;
-  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+// ══════════════════════════════════════════════════
+// TAB
+// ══════════════════════════════════════════════════
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  ['realtime','live','history','settings'].forEach(id => {
-    document.getElementById('tab-'+id).style.display = id===tab ? '' : 'none';
-  });
-  if (tab==='history') { renderEpTabs(); renderHistData(); drawTrend(); }
-  if (tab==='settings') { renderSettings(); }
-  if (tab==='live') { document.getElementById('live-worker-label').textContent = cfg.workerUrl; }
-  saveStore();
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'history') { renderEpDisplay(); loadEpInputs(); }
+  if (name === 'settings') { renderSettings(); }
+  if (name === 'live') { document.getElementById('live-worker-label').textContent = cfg.workerUrl; renderLiveHTChips(); }
 }
 
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // REALTIME TAB
-// ══════════════════════════════════════════════════════════
-function renderRTPills() {
-  const c = document.getElementById('rt-pills');
+// ══════════════════════════════════════════════════
+function renderRTChips() {
+  const c = document.getElementById('rt-chips');
   c.innerHTML = '';
   state.rtHashtags.forEach(h => {
     const b = document.createElement('button');
-    b.className = 'pill' + (h.active ? ' active-pill' : '');
+    b.className = 'chip' + (h.active ? ' active' : '');
     b.textContent = h.tag;
     b.onclick = () => {
       state.rtHashtags.forEach(x => x.active = x.id === h.id);
-      renderRTPills(); updateRTHero();
+      renderRTChips(); updateRTHero();
     };
     c.appendChild(b);
   });
   const add = document.createElement('button');
-  add.className = 'pill add-pill';
-  add.innerHTML = '<i class="ti ti-plus" aria-hidden="true"></i> 新增';
+  add.className = 'chip add';
+  add.textContent = '＋ 新增';
   add.onclick = () => {
-    const tag = prompt('輸入新 Hashtag（含 #）:');
-    if (tag && tag.trim()) {
-      const t = tag.trim().startsWith('#') ? tag.trim() : '#'+tag.trim();
-      state.rtHashtags.push({id: Date.now(), tag: t, active:false});
-      renderRTPills(); saveStore();
-    }
+    const t = prompt('輸入新 Hashtag（含 #）:');
+    if (!t) return;
+    const tag = t.trim().startsWith('#') ? t.trim() : '#'+t.trim();
+    state.rtHashtags.push({id: Date.now(), tag, active:false});
+    renderRTChips(); saveStore();
   };
   c.appendChild(add);
 }
 
-function activeHashtag() {
-  return (state.rtHashtags.find(h => h.active) || state.rtHashtags[0]);
+function activeRT() {
+  return state.rtHashtags.find(h => h.active) || state.rtHashtags[0];
 }
 
 function updateRTHero() {
-  const h = activeHashtag();
+  const h = activeRT();
   const d = state.rtData[h?.tag] || {};
-  document.getElementById('rt-hero-label').textContent = 'TOTAL TWEETS · ' + (h?.tag || '');
+  document.getElementById('rt-hero-label').textContent = 'Total Tweets · ' + (h?.tag || '');
   document.getElementById('rt-hero-num').textContent = d.tweets || '—';
   document.getElementById('rt-hero-sub').textContent = 'Engagement ' + (d.eng||'—') + ' · Users ' + (d.users||'—');
   document.getElementById('rt-today').textContent = d.today || '+0';
   document.getElementById('rt-stat-users').textContent = d.users || '—';
   document.getElementById('rt-stat-eng').textContent = d.eng || '—';
+  document.getElementById('rt-rank-users').textContent = d.users || '—';
   document.getElementById('rt-rank-tw').textContent = d.tw || '—';
   document.getElementById('rt-rank-th').textContent = d.th || '—';
   document.getElementById('rt-rank-world').textContent = d.world || '—';
-  document.getElementById('rt-rank-sample').textContent = d.users || '—';
   if (d.tweets) {
-    document.getElementById('rt-input-tweets').value = d.tweets;
-    document.getElementById('rt-input-eng').value = d.eng || '';
-    document.getElementById('rt-input-users').value = d.users || '';
-    document.getElementById('rt-input-today').value = d.today || '';
-    document.getElementById('rt-input-th').value = d.th || '';
-    document.getElementById('rt-input-world').value = d.world || '';
-    document.getElementById('rt-input-tw').value = d.tw || '';
+    document.getElementById('rt-in-tweets').value = d.tweets;
+    document.getElementById('rt-in-eng').value = d.eng || '';
+    document.getElementById('rt-in-users').value = d.users || '';
+    document.getElementById('rt-in-today').value = d.today || '';
+    document.getElementById('rt-in-th').value = d.th || '';
+    document.getElementById('rt-in-world').value = d.world || '';
+    document.getElementById('rt-in-tw').value = d.tw || '';
   }
 }
 
 function previewRT() {
-  document.getElementById('rt-hero-num').textContent = document.getElementById('rt-input-tweets').value || '—';
-  document.getElementById('rt-hero-sub').textContent = 'Engagement ' + (document.getElementById('rt-input-eng').value||'—') + ' · Users ' + (document.getElementById('rt-input-users').value||'—');
-  document.getElementById('rt-today').textContent = document.getElementById('rt-input-today').value || '+0';
-  document.getElementById('rt-stat-users').textContent = document.getElementById('rt-input-users').value || '—';
-  document.getElementById('rt-stat-eng').textContent = document.getElementById('rt-input-eng').value || '—';
-  document.getElementById('rt-rank-th').textContent = document.getElementById('rt-input-th').value || '—';
-  document.getElementById('rt-rank-world').textContent = document.getElementById('rt-input-world').value || '—';
-  document.getElementById('rt-rank-tw').textContent = document.getElementById('rt-input-tw').value || '—';
-  document.getElementById('rt-rank-sample').textContent = document.getElementById('rt-input-users').value || '—';
+  document.getElementById('rt-hero-num').textContent = document.getElementById('rt-in-tweets').value || '—';
+  document.getElementById('rt-hero-sub').textContent = 'Engagement '+(document.getElementById('rt-in-eng').value||'—')+' · Users '+(document.getElementById('rt-in-users').value||'—');
+  document.getElementById('rt-today').textContent = document.getElementById('rt-in-today').value || '+0';
+  document.getElementById('rt-stat-users').textContent = document.getElementById('rt-in-users').value || '—';
+  document.getElementById('rt-stat-eng').textContent = document.getElementById('rt-in-eng').value || '—';
+  document.getElementById('rt-rank-users').textContent = document.getElementById('rt-in-users').value || '—';
+  document.getElementById('rt-rank-th').textContent = document.getElementById('rt-in-th').value || '—';
+  document.getElementById('rt-rank-world').textContent = document.getElementById('rt-in-world').value || '—';
+  document.getElementById('rt-rank-tw').textContent = document.getElementById('rt-in-tw').value || '—';
 }
 
 function saveRT() {
-  const h = activeHashtag();
+  const h = activeRT();
   if (!h) return;
   state.rtData[h.tag] = {
-    tweets: document.getElementById('rt-input-tweets').value,
-    eng: document.getElementById('rt-input-eng').value,
-    users: document.getElementById('rt-input-users').value,
-    today: document.getElementById('rt-input-today').value,
-    th: document.getElementById('rt-input-th').value,
-    world: document.getElementById('rt-input-world').value,
-    tw: document.getElementById('rt-input-tw').value,
+    tweets: document.getElementById('rt-in-tweets').value,
+    eng: document.getElementById('rt-in-eng').value,
+    users: document.getElementById('rt-in-users').value,
+    today: document.getElementById('rt-in-today').value,
+    th: document.getElementById('rt-in-th').value,
+    world: document.getElementById('rt-in-world').value,
+    tw: document.getElementById('rt-in-tw').value,
   };
-  saveStore(); toast('儲存成功');
+  saveStore(); toast('儲存成功 ✓');
 }
 
 function clearRT() {
-  ['rt-input-tweets','rt-input-eng','rt-input-users','rt-input-today','rt-input-th','rt-input-world','rt-input-tw'].forEach(id => document.getElementById(id).value = '');
-  const h = activeHashtag();
+  ['rt-in-tweets','rt-in-eng','rt-in-users','rt-in-today','rt-in-th','rt-in-world','rt-in-tw'].forEach(id => document.getElementById(id).value = '');
+  const h = activeRT();
   if (h) delete state.rtData[h.tag];
   updateRTHero();
 }
@@ -537,44 +856,80 @@ function clearRT() {
 // Broadcast
 function toggleBcast() {
   state.bcastActive = !state.bcastActive;
-  const btn = document.getElementById('bcast-btn');
+  const btn = document.getElementById('rt-bcast-btn');
   if (state.bcastActive) {
     state.bcastStartTime = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'});
     state.bcastBase = document.getElementById('rt-hero-num').textContent;
-    document.getElementById('bcast-base').textContent = state.bcastBase;
-    document.getElementById('bcast-time').textContent = state.bcastStartTime + ' 開始';
-    btn.innerHTML = '<i class="ti ti-player-pause" aria-hidden="true"></i> 播出中';
-    btn.style.background = '#5a2030';
+    document.getElementById('rt-bcast-base').textContent = state.bcastBase;
+    document.getElementById('rt-bcast-time').textContent = state.bcastStartTime + ' 開始';
+    btn.textContent = '⏸ 播出中';
+    btn.classList.add('on');
   } else {
-    btn.innerHTML = '<i class="ti ti-player-play" aria-hidden="true"></i> 播出開始';
-    btn.style.background = '#b5344a';
+    btn.textContent = '📺 播出開始';
+    btn.classList.remove('on');
   }
   saveStore();
 }
 
 function resetBcast() {
-  state.bcastActive = false;
-  state.bcastBase = '';
-  state.bcastStartTime = null;
-  document.getElementById('bcast-time').textContent = '尚未設定';
-  document.getElementById('bcast-new').textContent = '—';
-  document.getElementById('bcast-base').textContent = '—';
-  const btn = document.getElementById('bcast-btn');
-  btn.innerHTML = '<i class="ti ti-player-play" aria-hidden="true"></i> 播出開始';
-  btn.style.background = '#b5344a';
+  state.bcastActive = false; state.bcastBase = ''; state.bcastStartTime = null;
+  document.getElementById('rt-bcast-time').textContent = '尚未設定';
+  document.getElementById('rt-bcast-new').textContent = '—';
+  document.getElementById('rt-bcast-base').textContent = '—';
+  document.getElementById('rt-bcast-end').textContent = '';
+  const btn = document.getElementById('rt-bcast-btn');
+  btn.textContent = '📺 播出開始'; btn.classList.remove('on');
   saveStore();
 }
 
-// ══════════════════════════════════════════════════════════
+// Chart
+let trendChart = null;
+let trendData = JSON.parse(localStorage.getItem('jjj_trend') || '{}');
+
+function renderChart(tag) {
+  const canvas = document.getElementById('trendCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const data = trendData[tag] || [];
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [{
+        data: data.map(d => d.value),
+        borderColor: '#C8425A', backgroundColor: 'rgba(200,66,90,0.08)',
+        fill: true, tension: 0.4,
+        pointBackgroundColor: 'white', pointBorderColor: '#C8425A',
+        pointBorderWidth: 2, pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#B07080', font: { size: 10 } } },
+        y: { grid: { color: 'rgba(200,66,90,0.06)' }, ticks: { color: '#B07080', font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function updateTime() {
+  const el = document.getElementById('rt-update-time');
+  if (el) el.textContent = new Date().toLocaleTimeString('zh-TW');
+}
+
+// ══════════════════════════════════════════════════
 // LIVE TAB
-// ══════════════════════════════════════════════════════════
-function renderHTPills() {
-  const c = document.getElementById('ht-pills');
+// ══════════════════════════════════════════════════
+function renderLiveHTChips() {
+  const c = document.getElementById('live-ht-chips');
   if (!c) return;
   c.innerHTML = '';
   cfg.hashtags.forEach(ht => {
     const b = document.createElement('button');
-    b.className = 'pill';
+    b.className = 'chip';
     b.textContent = ht;
     b.onclick = () => filterAndShow(ht);
     c.appendChild(b);
@@ -595,9 +950,9 @@ async function startFetch() {
     const res = await fetch(cfg.workerUrl + '?action=start');
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    if (!data.runId) throw new Error('沒有收到 runId，請確認 Worker 設定正確');
+    if (!data.runId) throw new Error('沒有收到 runId');
     state.runId = data.runId;
-    setStatus('Actor 啟動中，等待結果 (runId: '+data.runId+')', 'running');
+    setStatus('Actor 啟動中 (runId: '+data.runId+')', 'running');
     pollResult();
   } catch(e) {
     setStatus('錯誤：' + e.message, 'error');
@@ -606,50 +961,31 @@ async function startFetch() {
 }
 
 async function pollResult() {
-  if (!state.runId) return;
-  setStatus('抓取中，請稍候... (約 15–30 秒)', 'running');
   let tries = 0;
-  const interval = setInterval(async () => {
+  const iv = setInterval(async () => {
     tries++;
-    if (tries > 40) {
-      clearInterval(interval);
-      setStatus('逾時，請再試一次', 'error');
-      document.getElementById('fetch-btn').disabled = false;
-      return;
-    }
+    if (tries > 40) { clearInterval(iv); setStatus('逾時，請再試一次', 'error'); document.getElementById('fetch-btn').disabled = false; return; }
     try {
-      const statusRes = await fetch(cfg.workerUrl + '?action=status&runId=' + state.runId);
-      const statusData = await statusRes.json();
-      if (statusData.status === 'SUCCEEDED') {
-        clearInterval(interval);
-        await fetchResult();
-      } else if (statusData.status === 'FAILED' || statusData.status === 'ABORTED') {
-        clearInterval(interval);
-        setStatus('Actor 執行失敗，請重試', 'error');
-        document.getElementById('fetch-btn').disabled = false;
-      } else {
-        setStatus('執行中 (' + (statusData.status||'RUNNING') + ')... 第 ' + tries + ' 次輪詢', 'running');
-      }
-    } catch(e) {
-      clearInterval(interval);
-      await fetchResult();
-    }
+      const sr = await fetch(cfg.workerUrl + '?action=status&runId=' + state.runId);
+      const sd = await sr.json();
+      if (sd.status === 'SUCCEEDED') { clearInterval(iv); await fetchResult(); }
+      else if (sd.status === 'FAILED' || sd.status === 'ABORTED') {
+        clearInterval(iv); setStatus('Actor 執行失敗', 'error'); document.getElementById('fetch-btn').disabled = false;
+      } else { setStatus('執行中 (' + (sd.status||'RUNNING') + ')… 第'+tries+'次', 'running'); }
+    } catch(e) { clearInterval(iv); await fetchResult(); }
   }, 3000);
 }
 
 async function fetchResult() {
   try {
-    const keyword = cfg.hashtags.map(h => h.replace('#','')).join(',').toLowerCase();
-    const res = await fetch(cfg.workerUrl + '?action=result&runId=' + state.runId + '&keyword=' + encodeURIComponent(keyword));
+    const kw = cfg.hashtags.map(h => h.replace('#','')).join(',').toLowerCase();
+    const res = await fetch(cfg.workerUrl + '?action=result&runId='+state.runId+'&keyword='+encodeURIComponent(kw));
     const data = await res.json();
-    const all = data.all || data;
-    const filtered = data.filtered || [];
-    state.rawData = Array.isArray(all) ? all : [];
-    state.filteredData = filtered;
+    state.rawData = Array.isArray(data.all || data) ? (data.all || data) : [];
     renderTrends();
-    renderMatchCard(filtered);
-    document.getElementById('last-update').textContent = new Date().toLocaleTimeString('zh-TW');
-    setStatus('✓ 抓取成功！共 ' + state.rawData.length + ' 筆趨勢數據', 'success');
+    renderMatchCard(data.filtered || []);
+    document.getElementById('live-last-update').textContent = new Date().toLocaleTimeString('zh-TW');
+    setStatus('✓ 抓取成功！共 '+state.rawData.length+' 筆', 'success');
     document.getElementById('fetch-btn').disabled = false;
   } catch(e) {
     setStatus('取得結果失敗：' + e.message, 'error');
@@ -660,13 +996,8 @@ async function fetchResult() {
 function renderTrends() {
   const list = document.getElementById('trends-list');
   let data = state.rawData;
-  if (state.currentLoc !== 'all') {
-    data = data.filter(d => (d.location||d.country||'').toLowerCase().includes(state.currentLoc));
-  }
-  if (!data.length) {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--color-text-secondary);font-size:13px">此地區無數據</div>';
-    return;
-  }
+  if (state.currentLoc !== 'all') data = data.filter(d => (d.location||d.country||'').toLowerCase().includes(state.currentLoc));
+  if (!data.length) { list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-soft);font-size:13px;">此地區無數據</div>'; return; }
   const htLower = cfg.hashtags.map(h => h.toLowerCase().replace('#',''));
   list.innerHTML = data.slice(0,30).map((item,i) => {
     const name = item.name || item.trend || item.query || '—';
@@ -674,7 +1005,7 @@ function renderTrends() {
     const isMatch = htLower.some(ht => name.toLowerCase().includes(ht));
     return `<div class="trend-item">
       <div class="trend-rank">#${item.rank||(i+1)}</div>
-      <div class="trend-name ${isMatch?'trend-hl':''}">${name}</div>
+      <div class="trend-name${isMatch?' hl':''}">${name}</div>
       <div class="trend-vol">${vol ? Number(vol).toLocaleString() : '—'}</div>
     </div>`;
   }).join('');
@@ -687,22 +1018,21 @@ function renderMatchCard(filtered) {
   const first = filtered[0];
   const name = first.name || first.trend || first.query || '—';
   const vol = first.tweetVolume || first.tweet_volume || first.volume || '—';
-  const rank = first.rank ? '#'+first.rank : '—';
   document.getElementById('match-label').textContent = 'TRENDING NOW · ' + name;
   document.getElementById('match-num').textContent = vol !== '—' ? Number(vol).toLocaleString() : 'trending';
-  document.getElementById('match-sub').textContent = '排行 ' + rank + ' · ' + (first.location||'');
+  document.getElementById('match-sub').textContent = '排行 ' + (first.rank ? '#'+first.rank : '—') + ' · ' + (first.location||'');
 }
 
 function filterAndShow(ht) {
   const kw = ht.replace('#','').toLowerCase();
   const filtered = state.rawData.filter(d => (d.name||d.trend||d.query||'').toLowerCase().includes(kw));
-  renderMatchCard(filtered.length ? filtered : []);
+  renderMatchCard(filtered);
   if (!filtered.length) toast('趨勢中找不到 ' + ht + '，可能尚未進榜');
 }
 
 function switchLoc(loc, el) {
   state.currentLoc = loc;
-  document.querySelectorAll('.loc-tab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.loc-chip').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
   renderTrends();
 }
@@ -714,74 +1044,88 @@ function toggleAuto() {
   if (state.autoOn) {
     startFetch();
     state.autoTimer = setInterval(() => startFetch(), cfg.intervalMin * 60 * 1000);
-    document.getElementById('auto-interval-label').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取（已開啟）';
+    document.getElementById('auto-sub').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取（已開啟）';
   } else {
     clearInterval(state.autoTimer);
-    document.getElementById('auto-interval-label').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取';
+    document.getElementById('auto-sub').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取';
   }
 }
 
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // HISTORY TAB
-// ══════════════════════════════════════════════════════════
-function renderEpTabs() {
-  const c = document.getElementById('ep-tabs');
-  c.innerHTML = '';
-  epNames.forEach((ep, i) => {
-    const b = document.createElement('button');
-    const d = state.epData[ep];
-    const hasData = d && d.tweets;
-    b.className = 'pill' + (state.selectedEp===ep ? ' active-pill' : '');
-    b.textContent = '#' + ep + (ep==='EP6' && !hasData ? ' 🔜' : '');
-    b.onclick = () => { state.selectedEp=ep; renderEpTabs(); renderHistData(); loadEpInputs(); };
-    c.appendChild(b);
-  });
+// ══════════════════════════════════════════════════
+const EP_NAMES = ['EP6','EP5','EP4','EP3','EP2','EP1'];
+const KW_NAMES = {EP6:'SIXTH',EP5:'FIFTH',EP4:'FOURTH',EP3:'THIRD',EP2:'SECOND',EP1:'FIRST'};
+
+function switchEP(ep, el) {
+  state.selectedEp = ep;
+  document.querySelectorAll('#ep-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderEpDisplay(); loadEpInputs(); saveStore();
 }
 
-function renderHistData() {
+function renderEpDisplay() {
   const ep = state.selectedEp;
-  const d = state.epData[ep];
-  const idx = epNames.indexOf(ep);
-  const kwName = kwNames[idx] || '';
-  const hero = document.getElementById('hist-hero');
-  const kwSec = document.getElementById('hist-kw-section');
-  const editSec = document.getElementById('hist-edit');
-  editSec.style.display = '';
-  if (!d || !d.tweets) { hero.style.display='none'; kwSec.style.display='none'; return; }
-  hero.style.display = '';
-  document.getElementById('hist-tag-label').textContent = 'HASHTAG · #ENEMIESWITHBENEFITS' + ep;
-  document.getElementById('hist-tweets').textContent = d.tweets;
-  document.getElementById('hist-sub').textContent = 'Engagement ' + d.eng + ' · Users ' + d.users;
-  document.getElementById('hist-th').textContent = d.th || '—';
-  document.getElementById('hist-world').textContent = d.world || '—';
-  document.getElementById('hist-tw').textContent = d.tw || '—';
-  if (d.kw) {
-    kwSec.style.display = '';
-    document.getElementById('hist-kw-title').textContent = 'KEYWORD · EWB ' + kwName + ' EP';
-    document.getElementById('kw-tweets').textContent = d.kw.tweets || '—';
-    document.getElementById('kw-eng').textContent = d.kw.eng || '—';
-    document.getElementById('kw-th').textContent = d.kw.th || '—';
-    document.getElementById('kw-world').textContent = d.kw.world || '—';
-    document.getElementById('kw-tw').textContent = d.kw.tw || '—';
-    document.getElementById('kw-users').textContent = d.kw.users || '—';
-  } else { kwSec.style.display='none'; }
+  const d = state.epData[ep] || {};
+  const container = document.getElementById('ep-display');
+  if (!d.tweets) {
+    if (ep === 'EP6') {
+      container.innerHTML = `<div style="background:white;border-radius:16px;padding:32px;text-align:center;border:1.5px dashed var(--rose-light);margin-bottom:12px;">
+        <div style="font-size:32px;margin-bottom:12px;">🔜</div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--rose-deep);margin-bottom:6px;">#EnemiesWithBenefits${ep}</div>
+        <div style="font-size:12px;color:var(--text-soft);">播出後更新數據</div>
+      </div>`;
+    } else {
+      container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-soft);font-size:13px;">尚無數據</div>';
+    }
+    return;
+  }
+  const twBadge = d.tw && (d.tw.includes('#1') || d.tw === '#1') ? ' 🎉' : '';
+  let kwHtml = '';
+  if (d.kw && d.kw.tweets) {
+    kwHtml = `<div class="section-title" style="margin-top:16px;">📌 Keyword · EWB ${KW_NAMES[ep]} EP</div>
+    <div style="background:white;border-radius:16px;padding:16px;border:1px solid rgba(200,66,90,0.07);box-shadow:0 2px 8px rgba(200,66,90,0.05);margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><div class="stat-card-label">Total Tweets</div><div class="stat-card-num">${d.kw.tweets}</div></div>
+        <div><div class="stat-card-label">Engagement</div><div class="stat-card-num">${d.kw.eng||'—'}</div></div>
+        <div><div class="stat-card-label">TH Rank</div><div class="stat-card-num">${d.kw.th||'—'}</div></div>
+        <div><div class="stat-card-label">World Rank</div><div class="stat-card-num">${d.kw.world||'—'}</div></div>
+        <div><div class="stat-card-label">TW Rank</div><div class="stat-card-num">${d.kw.tw||'—'}</div></div>
+        <div><div class="stat-card-label">Users</div><div class="stat-card-num">${d.kw.users||'—'}</div></div>
+      </div>
+    </div>`;
+  }
+  container.innerHTML = `
+    <div class="section-title" style="margin-top:0;">📌 Hashtag · #EnemiesWithBenefits${ep}</div>
+    <div class="stat-hero" style="padding:18px 20px;">
+      <div class="stat-hero-label">Total Tweets</div>
+      <div class="stat-hero-num">${d.tweets}</div>
+      <div class="stat-hero-sub">Engagement ${d.eng||'—'} · Users ${d.users||'—'}</div>
+    </div>
+    <div class="ranking-grid" style="margin-bottom:0;">
+      <div class="rank-card"><div class="rank-card-icon">🇹🇭</div><div class="rank-card-num">${d.th||'—'}</div><div class="rank-card-label">TH Rank</div></div>
+      <div class="rank-card"><div class="rank-card-icon">🌐</div><div class="rank-card-num">${d.world||'—'}</div><div class="rank-card-label">World Rank</div></div>
+      <div class="rank-card"><div class="rank-card-icon">🇹🇼</div><div class="rank-card-num" ${twBadge?' style="color:var(--rose)"':''}>${(d.tw||'—')+twBadge}</div><div class="rank-card-label">TW Rank</div></div>
+    </div>
+    ${kwHtml}
+  `;
 }
 
 function loadEpInputs() {
   const d = state.epData[state.selectedEp] || {};
-  document.getElementById('h-tweets').value = d.tweets || '';
-  document.getElementById('h-eng').value = d.eng || '';
-  document.getElementById('h-users').value = d.users || '';
-  document.getElementById('h-th').value = d.th || '';
-  document.getElementById('h-world').value = d.world || '';
-  document.getElementById('h-tw').value = d.tw || '';
-  const kw = d.kw || {};
-  document.getElementById('h-kw-tweets').value = kw.tweets || '';
-  document.getElementById('h-kw-eng').value = kw.eng || '';
-  document.getElementById('h-kw-th').value = kw.th || '';
-  document.getElementById('h-kw-world').value = kw.world || '';
-  document.getElementById('h-kw-tw').value = kw.tw || '';
-  document.getElementById('h-kw-users').value = kw.users || '';
+  document.getElementById('h-tweets').value = d.tweets||'';
+  document.getElementById('h-eng').value = d.eng||'';
+  document.getElementById('h-users').value = d.users||'';
+  document.getElementById('h-th').value = d.th||'';
+  document.getElementById('h-world').value = d.world||'';
+  document.getElementById('h-tw').value = d.tw||'';
+  const kw = d.kw||{};
+  document.getElementById('h-kw-tweets').value = kw.tweets||'';
+  document.getElementById('h-kw-eng').value = kw.eng||'';
+  document.getElementById('h-kw-th').value = kw.th||'';
+  document.getElementById('h-kw-world').value = kw.world||'';
+  document.getElementById('h-kw-tw').value = kw.tw||'';
+  document.getElementById('h-kw-users').value = kw.users||'';
 }
 
 function saveEpData() {
@@ -803,56 +1147,38 @@ function saveEpData() {
       users: document.getElementById('h-kw-users').value,
     } : null
   };
-  saveStore(); toast('儲存成功'); renderHistData();
+  saveStore(); toast('儲存成功 ✓'); renderEpDisplay();
+  // update EP chip badge
+  const chips = document.querySelectorAll('#ep-chips .chip');
+  chips.forEach(c => {
+    if (c.textContent.startsWith('#'+ep)) {
+      c.textContent = '#'+ep + (ep==='EP6' && !state.epData[ep].tweets ? ' 🔜' : '');
+    }
+  });
 }
 
 function clearEpInputs() {
-  ['h-tweets','h-eng','h-users','h-th','h-world','h-tw','h-kw-tweets','h-kw-eng','h-kw-th','h-kw-world','h-kw-tw','h-kw-users'].forEach(id => document.getElementById(id).value = '');
+  ['h-tweets','h-eng','h-users','h-th','h-world','h-tw','h-kw-tweets','h-kw-eng','h-kw-th','h-kw-world','h-kw-tw','h-kw-users'].forEach(id => document.getElementById(id).value='');
 }
 
-function drawTrend() {
-  const canvas = document.getElementById('trend-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.offsetWidth * 2;
-  canvas.height = 120;
-  const data = [20.1,20.0,20.2,20.0,20.1,19.9,20.1,20.0,20.2,20.0,19.8,20.1,20.3,20.0,20.1,19.9,20.2,20.0,20.1,20.0];
-  const w = canvas.width, h = canvas.height, pad = 10;
-  const min = 19.5, max = 20.5;
-  ctx.clearRect(0,0,w,h);
-  const pts = data.map((v,i) => [pad + (i/(data.length-1))*(w-2*pad), pad + ((max-v)/(max-min))*(h-2*pad)]);
-  const grad = ctx.createLinearGradient(0,0,0,h);
-  grad.addColorStop(0,'rgba(181,52,74,0.25)');
-  grad.addColorStop(1,'rgba(181,52,74,0.02)');
-  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
-  pts.slice(1).forEach(p => ctx.lineTo(p[0],p[1]));
-  ctx.lineTo(pts[pts.length-1][0], h-pad);
-  ctx.lineTo(pts[0][0], h-pad);
-  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
-  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
-  pts.slice(1).forEach(p => ctx.lineTo(p[0],p[1]));
-  ctx.strokeStyle = '#b5344a'; ctx.lineWidth = 2; ctx.stroke();
-  pts.forEach(p => { ctx.beginPath(); ctx.arc(p[0],p[1],4,0,Math.PI*2); ctx.fillStyle='#b5344a'; ctx.fill(); });
-}
-
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // SETTINGS TAB
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 function renderSettings() {
   document.getElementById('cfg-worker').value = cfg.workerUrl;
   document.getElementById('cfg-interval').value = cfg.intervalMin;
   const hm = document.getElementById('ht-manage');
   hm.innerHTML = cfg.hashtags.map((ht,i) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
-      <span style="font-size:13px;color:var(--color-text-primary)">${ht}</span>
-      <button onclick="removeHt(${i})" style="background:none;border:none;cursor:pointer;color:#b5344a;font-size:13px"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid rgba(200,66,90,0.08);">
+      <span style="font-size:13px;color:var(--text-dark);font-weight:500;">${ht}</span>
+      <button onclick="removeHt(${i})" style="background:none;border:none;cursor:pointer;color:var(--rose);font-size:13px;padding:4px;">🗑</button>
     </div>`
   ).join('');
   const lm = document.getElementById('loc-manage');
   const allLocs = ['taiwan','thailand','worldwide','vietnam','philippines','indonesia'];
   lm.innerHTML = allLocs.map(loc =>
-    `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;cursor:pointer">
-      <input type="checkbox" ${cfg.locations.includes(loc)?'checked':''} onchange="toggleLoc('${loc}',this.checked)" style="accent-color:#b5344a">
+    `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;cursor:pointer;color:var(--text-dark);">
+      <input type="checkbox" ${cfg.locations.includes(loc)?'checked':''} onchange="toggleLoc('${loc}',this.checked)" style="accent-color:var(--rose);width:16px;height:16px;">
       ${loc.charAt(0).toUpperCase()+loc.slice(1)}
     </label>`
   ).join('');
@@ -861,21 +1187,22 @@ function renderSettings() {
 function saveSettings() {
   cfg.workerUrl = document.getElementById('cfg-worker').value.trim();
   cfg.intervalMin = parseInt(document.getElementById('cfg-interval').value) || 5;
-  saveStore(); toast('設定已儲存');
-  document.getElementById('live-worker-label').textContent = cfg.workerUrl;
-  document.getElementById('auto-interval-label').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取';
+  saveStore(); toast('設定已儲存 ✓');
+  const wl = document.getElementById('live-worker-label');
+  if (wl) wl.textContent = cfg.workerUrl;
+  document.getElementById('auto-sub').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取';
 }
 
 function addHashtag() {
   let ht = document.getElementById('new-ht').value.trim();
   if (!ht) return;
   if (!ht.startsWith('#')) ht = '#'+ht;
-  if (!cfg.hashtags.includes(ht)) { cfg.hashtags.push(ht); saveStore(); renderSettings(); renderHTPills(); }
+  if (!cfg.hashtags.includes(ht)) { cfg.hashtags.push(ht); saveStore(); renderSettings(); renderLiveHTChips(); }
   document.getElementById('new-ht').value = '';
 }
 
 function removeHt(i) {
-  cfg.hashtags.splice(i,1); saveStore(); renderSettings(); renderHTPills();
+  cfg.hashtags.splice(i,1); saveStore(); renderSettings(); renderLiveHTChips();
 }
 
 function toggleLoc(loc, on) {
@@ -884,24 +1211,21 @@ function toggleLoc(loc, on) {
   saveStore();
 }
 
-// ── 時間更新 ──────────────────────────────────────────────
-function updateTime() {
-  document.getElementById('update-time').textContent = new Date().toLocaleTimeString('zh-TW');
-}
-
-// ── 初始化 ────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
 loadStore();
-renderRTPills();
+renderRTChips();
 updateRTHero();
-renderHTPills();
-document.getElementById('live-worker-label').textContent = cfg.workerUrl;
+renderChart(activeRT()?.tag || '#JANHAE');
 if (state.bcastActive) {
-  document.getElementById('bcast-time').textContent = (state.bcastStartTime || '') + ' 開始';
-  document.getElementById('bcast-base').textContent = state.bcastBase || '—';
-  const btn = document.getElementById('bcast-btn');
-  btn.innerHTML = '<i class="ti ti-player-pause" aria-hidden="true"></i> 播出中';
-  btn.style.background = '#5a2030';
+  document.getElementById('rt-bcast-time').textContent = (state.bcastStartTime||'') + ' 開始';
+  document.getElementById('rt-bcast-base').textContent = state.bcastBase || '—';
+  const btn = document.getElementById('rt-bcast-btn');
+  btn.textContent = '⏸ 播出中'; btn.classList.add('on');
 }
 updateTime();
 setInterval(updateTime, 30000);
 </script>
+</body>
+</html>
