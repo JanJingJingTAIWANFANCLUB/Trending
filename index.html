@@ -945,16 +945,27 @@ function setStatus(msg, type='') {
 async function startFetch() {
   const btn = document.getElementById('fetch-btn');
   btn.disabled = true;
-  setStatus('正在啟動 Apify Actor...', 'running');
+
+  const h = state.rtHashtags.find(x => x.active) || state.rtHashtags[0];
+
+  setStatus('正在啟動 Actor...', 'running');
+
   try {
-    const res = await fetch(cfg.workerUrl + '?action=start');
+    const res = await fetch(
+      `${cfg.workerUrl}?action=start&tag=${encodeURIComponent(h.tag.replace('#',''))}`
+    );
+
     const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    if (!data.runId) throw new Error('沒有收到 runId');
+
+    if (!data.runId) throw new Error(data.error || 'no runId');
+
     state.runId = data.runId;
-    setStatus('Actor 啟動中 (runId: '+data.runId+')', 'running');
+
+    setStatus('Actor 執行中...', 'running');
+
     pollResult();
-  } catch(e) {
+
+  } catch (e) {
     setStatus('錯誤：' + e.message, 'error');
     btn.disabled = false;
   }
@@ -979,7 +990,7 @@ async function pollResult() {
 async function fetchResult() {
   try {
     const kw = cfg.hashtags.map(h => h.replace('#','')).join(',').toLowerCase();
-    const res = await fetch(cfg.workerUrl + '?action=result&runId='+state.runId+'&keyword='+encodeURIComponent(kw));
+    const res = await fetch(cfg.workerUrl + '?action=result&runId='+state.runId+'&tag='+encodeURIComponent(kw));
     const data = await res.json();
     state.rawData = Array.isArray(data.all || data) ? (data.all || data) : [];
     renderTrends();
