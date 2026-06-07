@@ -1,497 +1,907 @@
-import { useState, useEffect } from "react";
 
-const API_URL = "https://api.anthropic.com/v1/messages";
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent}
+.app{max-width:480px;margin:0 auto;padding:16px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#f4a0b0,#c0506a);display:flex;align-items:center;justify-content:center;font-size:22px}
+.logo-text{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.logo-sub{font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500}
+.tabs{display:flex;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:3px;margin-bottom:16px;gap:2px}
+.tab{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:10px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);transition:all .18s;white-space:nowrap}
+.tab.active{background:#b5344a;color:#fff;font-weight:500}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:12px}
+.card-title{font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500;margin-bottom:10px;text-transform:uppercase}
+.hero-card{background:linear-gradient(135deg,#b5344a 0%,#7a1a2e 100%);border-radius:var(--border-radius-lg);padding:18px 20px;margin-bottom:12px;color:#fff}
+.hero-label{font-size:10px;letter-spacing:2px;opacity:.8;margin-bottom:6px}
+.hero-num{font-size:38px;font-weight:500;letter-spacing:-1px;min-height:46px;display:flex;align-items:center}
+.hero-sub{font-size:12px;opacity:.8;margin-top:3px}
+.hero-row{display:flex;justify-content:space-between;margin-top:14px}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.pill{padding:5px 13px;border-radius:999px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:#b5344a;transition:all .18s}
+.pill.on,.pill.active-pill{background:#b5344a;color:#fff;border-color:#b5344a;font-weight:500}
+.pill.add-pill{border-style:dashed;color:#b5344a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-cell{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.stat-icon{font-size:18px;margin-bottom:4px}
+.stat-val{font-size:15px;font-weight:500;color:#b5344a}
+.stat-lbl{font-size:9px;color:var(--color-text-secondary);letter-spacing:.5px;margin-top:2px}
+.edit-section{background:var(--color-background-secondary);border:1px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:12px}
+.edit-title{font-size:12px;color:#b5344a;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.field-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.field-group3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.field-label{font-size:10px;color:var(--color-text-secondary);margin-bottom:3px;letter-spacing:.5px}
+input[type=text]{width:100%;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
+input[type=text]:focus{border-color:#b5344a}
+.save-btn{background:#b5344a;color:#fff;border:none;border-radius:var(--border-radius-md);padding:8px 16px;font-size:13px;cursor:pointer;font-weight:500}
+.reset-btn{background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 16px;font-size:13px;cursor:pointer}
+.rank-badge{background:rgba(255,255,255,.18);border-radius:10px;padding:10px 6px;text-align:center}
+.rank-flag{font-size:18px}
+.rank-val{font-size:16px;font-weight:500}
+.rank-lbl{font-size:9px;opacity:.75;letter-spacing:.5px}
+.broadcast-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.bcast-btn{background:#b5344a;color:#fff;border:none;border-radius:var(--border-radius-md);padding:8px 14px;font-size:12px;cursor:pointer;font-weight:500}
+.bcast-reset{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 14px;font-size:12px;cursor:pointer;color:var(--color-text-primary)}
+/* Live tab */
+.live-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.2);font-size:11px;margin-bottom:10px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#4eff91;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.status-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);margin-bottom:12px;font-size:12px;color:var(--color-text-secondary)}
+.status-bar.running{background:#fff8e1;color:#b8860b}
+.status-bar.success{background:#e8f5e9;color:#2e7d32}
+.status-bar.error{background:#ffebee;color:#c62828}
+.fetch-btn{width:100%;padding:11px;border:none;border-radius:var(--border-radius-md);background:linear-gradient(135deg,#b5344a,#8b1a2e);color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px}
+.fetch-btn:disabled{opacity:.6;cursor:not-allowed}
+.auto-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:12px;font-size:13px}
+.toggle{width:40px;height:22px;border-radius:999px;border:none;cursor:pointer;position:relative;transition:background .2s}
+.toggle.on{background:#b5344a}
+.toggle.off{background:var(--color-border-secondary)}
+.toggle-knob{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle.on .toggle-knob{left:21px}
+.toggle.off .toggle-knob{left:3px}
+.trend-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.trend-item:last-child{border-bottom:none}
+.trend-rank{width:28px;font-size:13px;font-weight:500;color:#b5344a}
+.trend-name{flex:1;font-size:13px;color:var(--color-text-primary);word-break:break-all}
+.trend-vol{font-size:12px;color:var(--color-text-secondary);margin-left:8px}
+.trend-hl{background:rgba(181,52,74,.12);border-radius:6px;padding:2px 6px;color:#b5344a;font-weight:500}
+.loc-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.loc-tab{padding:4px 12px;border-radius:999px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary)}
+.loc-tab.on{background:#b5344a;color:#fff;border-color:#b5344a}
+.worker-cfg{padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:12px;font-size:12px;color:var(--color-text-secondary);word-break:break-all}
+/* canvas */
+canvas{width:100%;height:60px}
+.trend-labels{display:flex;justify-content:space-between;margin-top:2px}
+.trend-lbl{font-size:9px;color:var(--color-text-secondary)}
+/* toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2c2c2a;color:#fff;padding:8px 20px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
+.toast.show{opacity:1}
+.ep-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+</style>
 
-const initialHashtags = [
-  { id: 1, tag: "#JANHAE", active: false },
-  { id: 2, tag: "#jingjingyu", active: false },
-  { id: 3, tag: "#JanJingJing", active: false },
-  { id: 4, tag: "#EnemiesWithBenefitsEP5", active: true },
-  { id: 5, tag: "#EnemiesWithBenefitsEP6", active: true },
-];
+<h2 class="sr-only">Jewel's TAIWAN · X Trending </h2>
 
-const episodes = ["#EP1", "#EP2", "#EP3", "#EP4", "#EP5", "#EP6 🔜"];
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🐱</div>
+      <div>
+        <div class="logo-text">Jewel's TAIWAN</div>
+        <div class="logo-sub">X TRENDING</div>
+      </div>
+    </div>
+    <i class="ti ti-star" style="font-size:20px;color:#e0a0b0" aria-hidden="true"></i>
+  </div>
 
-const mockEpisodeData = {
-  "#EP5": {
-    totalTweets: "286.6K",
-    engagement: "1.4M",
-    users: "7,600",
-    thRank: "#1",
-    worldRank: "#11",
-    twRank: "#3 🎉",
-    keyword: {
-      totalTweets: "174.5K",
-      engagement: "801.9K",
-      thRank: "#2",
-      worldRank: "#12",
-      twRank: "未進榜",
-      users: "5,400",
-    },
-  },
-  "#EP4": {
-    totalTweets: "241.2K",
-    engagement: "1.1M",
-    users: "6,200",
-    thRank: "#2",
-    worldRank: "#15",
-    twRank: "#5",
-    keyword: {
-      totalTweets: "132.1K",
-      engagement: "620.4K",
-      thRank: "#3",
-      worldRank: "#18",
-      twRank: "#8",
-      users: "4,100",
-    },
-  },
-  "#EP3": {
-    totalTweets: "198.4K",
-    engagement: "890K",
-    users: "5,100",
-    thRank: "#3",
-    worldRank: "#19",
-    twRank: "#6",
-    keyword: {
-      totalTweets: "110.5K",
-      engagement: "502.1K",
-      thRank: "#4",
-      worldRank: "#22",
-      twRank: "#10",
-      users: "3,500",
-    },
-  },
-  "#EP2": {
-    totalTweets: "167.8K",
-    engagement: "742K",
-    users: "4,400",
-    thRank: "#5",
-    worldRank: "#24",
-    twRank: "#9",
-    keyword: null,
-  },
-  "#EP1": {
-    totalTweets: "143.2K",
-    engagement: "621K",
-    users: "3,800",
-    thRank: "#7",
-    worldRank: "#31",
-    twRank: "#12",
-    keyword: null,
-  },
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('realtime',this)"><i class="ti ti-bolt" aria-hidden="true"></i> 即時</button>
+    <button class="tab" onclick="switchTab('live',this)"><i class="ti ti-antenna" aria-hidden="true"></i> Live抓取</button>
+    <button class="tab" onclick="switchTab('history',this)"><i class="ti ti-chart-line" aria-hidden="true"></i> 歷史</button>
+    <button class="tab" onclick="switchTab('settings',this)"><i class="ti ti-settings" aria-hidden="true"></i> 設定</button>
+  </div>
+
+  <!-- ══ REALTIME TAB ══ -->
+  <div id="tab-realtime">
+    <div class="pill-row" id="rt-pills"></div>
+
+    <div class="hero-card">
+      <div class="hero-label" id="rt-hero-label">TOTAL TWEETS · #ENEMIESWITHBENEFITSEP5</div>
+      <div class="hero-num" id="rt-hero-num">—</div>
+      <div class="hero-sub" id="rt-hero-sub">Engagement — · Users —</div>
+      <div class="hero-row">
+        <div><div style="font-size:11px;opacity:.7">今日新增</div><div style="font-size:18px;font-weight:500" id="rt-today">+0</div></div>
+        <div style="text-align:right"><div style="font-size:11px;opacity:.7">重置時間</div><div style="font-size:13px">每天 00:00</div></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-title"><i class="ti ti-pencil" style="font-size:14px" aria-hidden="true"></i> 手動輸入即時數據</div>
+      <div class="field-group">
+        <div><div class="field-label">總推文數 (e.g. 286.6K)</div><input type="text" id="rt-input-tweets" placeholder="286.6K" oninput="previewRT()"></div>
+        <div><div class="field-label">互動數 (Engagement)</div><input type="text" id="rt-input-eng" placeholder="1.4M" oninput="previewRT()"></div>
+      </div>
+      <div class="field-group">
+        <div><div class="field-label">用戶數 (Users)</div><input type="text" id="rt-input-users" placeholder="7,600" oninput="previewRT()"></div>
+        <div><div class="field-label">今日新增</div><input type="text" id="rt-input-today" placeholder="+0" oninput="previewRT()"></div>
+      </div>
+      <div class="field-group3">
+        <div><div class="field-label">TH 排行</div><input type="text" id="rt-input-th" placeholder="#1" oninput="previewRT()"></div>
+        <div><div class="field-label">世界排行</div><input type="text" id="rt-input-world" placeholder="#11" oninput="previewRT()"></div>
+        <div><div class="field-label">TW 排行</div><input type="text" id="rt-input-tw" placeholder="#3" oninput="previewRT()"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="save-btn" onclick="saveRT()"><i class="ti ti-device-floppy" aria-hidden="true"></i> 儲存</button>
+        <button class="reset-btn" onclick="clearRT()">清除</button>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><div class="card-title">USERS</div><div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="rt-stat-users">—</div></div>
+      <div class="card"><div class="card-title">ENGAGEMENT</div><div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="rt-stat-eng">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">USERS & RANKING</div>
+      <div class="grid3">
+        <div class="stat-cell"><div class="stat-icon">👥</div><div class="stat-val" id="rt-rank-sample">—</div><div class="stat-lbl">USERS (SAMPLE)</div></div>
+        <div class="stat-cell"><div class="stat-icon">🇹🇼</div><div class="stat-val" id="rt-rank-tw">—</div><div class="stat-lbl">TW RANK</div></div>
+        <div class="stat-cell"><div class="stat-icon">🇹🇭</div><div class="stat-val" id="rt-rank-th">—</div><div class="stat-lbl">TH RANK</div></div>
+        <div class="stat-cell"><div class="stat-icon">🌐</div><div class="stat-val" id="rt-rank-world">—</div><div class="stat-lbl">WORLD RANK</div></div>
+        <div class="stat-cell"><div class="stat-icon">🌍</div><div class="stat-val">—</div><div class="stat-lbl">COUNTRIES</div></div>
+        <div class="stat-cell"><div class="stat-icon">⚡</div><div class="stat-val">—</div><div class="stat-lbl">PEAK/HR</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📺 播出累積計算</div>
+      <div class="broadcast-row">
+        <div><div style="font-size:11px;color:var(--color-text-secondary)">播出時段</div><div style="font-size:13px;color:var(--color-text-primary)" id="bcast-time">尚未設定</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="bcast-btn" id="bcast-btn" onclick="toggleBcast()"><i class="ti ti-player-play" aria-hidden="true"></i> 播出開始</button>
+          <button class="bcast-reset" onclick="resetBcast()"><i class="ti ti-refresh" aria-hidden="true"></i> 重設</button>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="stat-cell"><div class="stat-lbl" style="margin-bottom:4px">播出後新增</div><div class="stat-val" id="bcast-new">—</div></div>
+        <div class="stat-cell"><div class="stat-lbl" style="margin-bottom:4px">基準時推文數</div><div class="stat-val" id="bcast-base">—</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:#b5344a;font-weight:500">統計結束時間：隔天 18:00 自動結束</div>
+      <div style="font-size:10px;color:var(--color-text-secondary);margin-top:3px">播出前按「播出開始」記錄基準，隔天下午 6 點自動停止累積</div>
+    </div>
+  </div>
+
+  <!-- ══ LIVE TAB ══ -->
+  <div id="tab-live" style="display:none">
+    <div class="worker-cfg">
+      <i class="ti ti-cloud" style="font-size:13px;vertical-align:-1px" aria-hidden="true"></i>
+      Worker: <strong style="color:#b5344a" id="live-worker-label">—</strong>
+    </div>
+
+    <div class="auto-row">
+      <div>
+        <div style="font-weight:500;font-size:13px;color:var(--color-text-primary)">自動更新</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)" id="auto-interval-label">每 5 分鐘自動抓取</div>
+      </div>
+      <button class="toggle off" id="auto-toggle" onclick="toggleAuto()" aria-label="切換自動更新">
+        <div class="toggle-knob"></div>
+      </button>
+    </div>
+
+    <button class="fetch-btn" id="fetch-btn" onclick="startFetch()">
+      <i class="ti ti-refresh" aria-hidden="true"></i> 立即抓取 X 趨勢
+    </button>
+
+    <div class="status-bar" id="status-bar">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span id="status-text">按下「立即抓取」開始</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">追蹤的 Hashtag</div>
+      <div class="pill-row" id="ht-pills"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">地區排行</div>
+      <div class="loc-tabs" id="loc-tabs">
+        <button class="loc-tab on" onclick="switchLoc('all',this)">全部</button>
+        <button class="loc-tab" onclick="switchLoc('taiwan',this)">🇹🇼 Taiwan</button>
+        <button class="loc-tab" onclick="switchLoc('thailand',this)">🇹🇭 Thailand</button>
+        <button class="loc-tab" onclick="switchLoc('worldwide',this)">🌐 Worldwide</button>
+      </div>
+      <div id="trends-list">
+        <div style="text-align:center;padding:24px;color:var(--color-text-secondary);font-size:13px">
+          <i class="ti ti-antenna" style="font-size:28px;display:block;margin-bottom:8px" aria-hidden="true"></i>
+          尚未抓取數據
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="match-card" style="display:none">
+      <div class="hero-card" style="margin-bottom:0">
+        <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+        <div class="hero-label" id="match-label">TRENDING MATCHES</div>
+        <div class="hero-num" id="match-num">—</div>
+        <div class="hero-sub" id="match-sub">—</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:10px;color:var(--color-text-secondary);margin-bottom:12px">
+      <i class="ti ti-clock" aria-hidden="true"></i> 上次更新：<span id="last-update">—</span>
+    </div>
+  </div>
+
+  <!-- ══ HISTORY TAB ══ -->
+  <div id="tab-history" style="display:none">
+    <div style="font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500;margin-bottom:8px">🎬 ENEMIESWITHBENEFITS · 劇集數據</div>
+    <div class="ep-tabs" id="ep-tabs"></div>
+
+    <div id="hist-hero" class="hero-card" style="display:none">
+      <div class="hero-label" id="hist-tag-label">HASHTAG · #ENEMIESWITHBENEFITSEP5</div>
+      <div class="hero-num" id="hist-tweets">—</div>
+      <div class="hero-sub" id="hist-sub">Engagement — · Users —</div>
+      <div class="grid3" style="margin-top:14px">
+        <div class="rank-badge"><div class="rank-flag">🇹🇭</div><div class="rank-val" id="hist-th">—</div><div class="rank-lbl">TH RANK</div></div>
+        <div class="rank-badge"><div class="rank-flag">🌐</div><div class="rank-val" id="hist-world">—</div><div class="rank-lbl">WORLD RANK</div></div>
+        <div class="rank-badge"><div class="rank-flag">🇹🇼</div><div class="rank-val" id="hist-tw">—</div><div class="rank-lbl">TW RANK</div></div>
+      </div>
+    </div>
+
+    <div id="hist-kw-section" style="display:none">
+      <div style="font-size:10px;letter-spacing:2px;color:#b5344a;font-weight:500;margin-bottom:8px" id="hist-kw-title">KEYWORD · EWB EP</div>
+      <div class="card">
+        <div class="field-group" style="margin-bottom:0">
+          <div><div class="stat-lbl">TOTAL TWEETS</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-tweets">—</div></div>
+          <div><div class="stat-lbl">ENGAGEMENT</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-eng">—</div></div>
+          <div><div class="stat-lbl">TH RANK</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-th">—</div></div>
+          <div><div class="stat-lbl">WORLD RANK</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-world">—</div></div>
+          <div><div class="stat-lbl">TW RANK</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-tw">—</div></div>
+          <div><div class="stat-lbl">USERS</div><div style="font-size:20px;font-weight:500;color:#b5344a" id="kw-users">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="edit-section" id="hist-edit" style="display:none">
+      <div class="edit-title"><i class="ti ti-pencil" style="font-size:14px" aria-hidden="true"></i> 手動輸入 / 編輯劇集數據</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Hashtag 數據</div>
+      <div class="field-group">
+        <div><div class="field-label">總推文數</div><input type="text" id="h-tweets" placeholder="286.6K"></div>
+        <div><div class="field-label">互動數</div><input type="text" id="h-eng" placeholder="1.4M"></div>
+      </div>
+      <div class="field-group3">
+        <div><div class="field-label">TH 排行</div><input type="text" id="h-th" placeholder="#1"></div>
+        <div><div class="field-label">世界排行</div><input type="text" id="h-world" placeholder="#11"></div>
+        <div><div class="field-label">TW 排行</div><input type="text" id="h-tw" placeholder="#3"></div>
+      </div>
+      <div class="field-group">
+        <div><div class="field-label">用戶數</div><input type="text" id="h-users" placeholder="7,600"></div>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;margin-top:4px">Keyword 數據</div>
+      <div class="field-group">
+        <div><div class="field-label">Keyword 推文數</div><input type="text" id="h-kw-tweets" placeholder="174.5K"></div>
+        <div><div class="field-label">Keyword 互動數</div><input type="text" id="h-kw-eng" placeholder="801.9K"></div>
+      </div>
+      <div class="field-group3">
+        <div><div class="field-label">KW TH 排行</div><input type="text" id="h-kw-th" placeholder="#2"></div>
+        <div><div class="field-label">KW 世界排行</div><input type="text" id="h-kw-world" placeholder="#12"></div>
+        <div><div class="field-label">KW TW 排行</div><input type="text" id="h-kw-tw" placeholder="未進榜"></div>
+      </div>
+      <div class="field-group">
+        <div><div class="field-label">KW 用戶數</div><input type="text" id="h-kw-users" placeholder="5,400"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="save-btn" onclick="saveEpData()"><i class="ti ti-device-floppy" aria-hidden="true"></i> 儲存劇集數據</button>
+        <button class="reset-btn" onclick="clearEpInputs()">清除</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Tweet Volume</div>
+        <span style="padding:3px 12px;border-radius:999px;background:#b5344a;color:#fff;font-size:11px">每小時</span>
+      </div>
+      <canvas id="trend-canvas"></canvas>
+      <div class="trend-labels">
+        <span class="trend-lbl">15:00</span><span class="trend-lbl">17:00</span><span class="trend-lbl">22:00</span><span class="trend-lbl">0:00</span><span class="trend-lbl">11:00</span><span class="trend-lbl">16:00</span>
+      </div>
+      <div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px">24hr 趨勢</div>
+    </div>
+  </div>
+
+  <!-- ══ SETTINGS TAB ══ -->
+  <div id="tab-settings" style="display:none">
+    <div class="card">
+      <div class="card-title">Worker 設定</div>
+      <div class="field-label" style="margin-bottom:4px">Worker URL</div>
+      <input type="text" id="cfg-worker" style="margin-bottom:10px">
+      <div class="field-label" style="margin-bottom:4px">自動更新間隔（分鐘）</div>
+      <input type="text" id="cfg-interval" value="5" style="margin-bottom:10px">
+      <button class="save-btn" onclick="saveSettings()" style="width:100%"><i class="ti ti-device-floppy" aria-hidden="true"></i> 儲存設定</button>
+    </div>
+    <div class="card">
+      <div class="card-title">追蹤 Hashtag 管理</div>
+      <div id="ht-manage"></div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <input type="text" id="new-ht" placeholder="#EnemiesWithBenefitsEP6" style="flex:1">
+        <button class="save-btn" onclick="addHashtag()">+ 新增</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">地區設定</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">抓取時包含的地區（需重新抓取才生效）</div>
+      <div id="loc-manage"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:16px;font-size:10px;color:var(--color-text-secondary)">
+    <i class="ti ti-clock" style="font-size:12px" aria-hidden="true"></i> 更新時間：<span id="update-time">—</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 統一儲存 key ──────────────────────────────────────────
+const STORE_KEY = 'jewels_tw_combined_v1';
+
+// ── 預設設定 ──────────────────────────────────────────────
+let cfg = {
+  workerUrl: 'https://trenging9597.janjingjingtaiwanfanclub.workers.dev',
+  intervalMin: 5,
+  hashtags: ['#EnemiesWithBenefitsEP5','#EnemiesWithBenefitsEP6','#JANHAE','#JanJingJing','#jingjingyu'],
+  locations: ['taiwan','thailand','worldwide']
 };
 
-// Sparkline data (20 points, hovering around 20)
-const trendData = [20.1, 20.0, 20.2, 20.0, 20.1, 19.9, 20.1, 20.0, 20.2, 20.0,
-  19.8, 20.1, 20.3, 20.0, 20.1, 19.9, 20.2, 20.0, 20.1, 20.0];
-const trendLabels = ["15:00","17:00","22:00","18:00","23:00","0:00","11:00","14:00","16:00",""];
+// ── 狀態 ──────────────────────────────────────────────────
+let state = {
+  // Realtime tab
+  rtHashtags: [
+    {id:1,tag:'#JANHAE',active:false},
+    {id:2,tag:'#jingjingyu',active:false},
+    {id:3,tag:'#JanJingJing',active:false},
+    {id:4,tag:'#EnemiesWithBenefitsEP5',active:true},
+    {id:5,tag:'#EnemiesWithBenefitsEP6',active:false},
+  ],
+  rtData: {},
+  bcastActive: false,
+  bcastBase: '',
+  bcastStartTime: null,
+  // History tab
+  selectedEp: 'EP5',
+  epData: {
+    'EP5':{tweets:'286.6K',eng:'1.4M',users:'7,600',th:'#1',world:'#11',tw:'#3',kw:{tweets:'174.5K',eng:'801.9K',th:'#2',world:'#12',tw:'未進榜',users:'5,400'}},
+    'EP4':{tweets:'241.2K',eng:'1.1M',users:'6,200',th:'#2',world:'#15',tw:'#5',kw:{tweets:'132.1K',eng:'620.4K',th:'#3',world:'#18',tw:'#8',users:'4,100'}},
+    'EP3':{tweets:'198.4K',eng:'890K',users:'5,100',th:'#3',world:'#19',tw:'#6',kw:null},
+    'EP2':{tweets:'167.8K',eng:'742K',users:'4,400',th:'#5',world:'#24',tw:'#9',kw:null},
+    'EP1':{tweets:'143.2K',eng:'621K',users:'3,800',th:'#7',world:'#31',tw:'#12',kw:null},
+    'EP6':{tweets:'',eng:'',users:'',th:'',world:'',tw:'',kw:null},
+  },
+  // Live tab
+  runId: null,
+  autoTimer: null,
+  autoOn: false,
+  rawData: [],
+  filteredData: [],
+  currentLoc: 'all',
+  activeTab: 'realtime'
+};
 
-function Sparkline({ data }) {
-  const w = 300, h = 60, pad = 4;
-  const min = Math.min(...data) - 0.5;
-  const max = Math.max(...data) + 0.5;
-  const pts = data.map((v, i) => {
-    const x = pad + (i / (data.length - 1)) * (w - 2 * pad);
-    const y = pad + ((max - v) / (max - min)) * (h - 2 * pad);
-    return `${x},${y}`;
-  });
-  const area = `M${pts[0]} ` + pts.slice(1).map(p => `L${p}`).join(" ") + ` L${w - pad},${h - pad} L${pad},${h - pad} Z`;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 60 }}>
-      <defs>
-        <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#b5344a" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#b5344a" stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#sg)" />
-      <polyline points={pts.join(" ")} fill="none" stroke="#b5344a" strokeWidth="1.5" />
-      {data.map((v, i) => {
-        const x = pad + (i / (data.length - 1)) * (w - 2 * pad);
-        const y = pad + ((max - v) / (max - min)) * (h - 2 * pad);
-        return <circle key={i} cx={x} cy={y} r="3" fill="#b5344a" opacity="0.8" />;
-      })}
-    </svg>
-  );
-}
+const epNames = ['EP6','EP5','EP4','EP3','EP2','EP1'];
+const kwNames = ['SIXTH','FIFTH','FOURTH','THIRD','SECOND','FIRST'];
 
-function RealtimeTab({ hashtags, setHashtags }) {
-  const [realtimeTweets, setRealtimeTweets] = useState("...");
-  const [realtimeUsers, setRealtimeUsers] = useState("...");
-  const [realtimeEngagement, setRealtimeEngagement] = useState("...");
-  const [loading, setLoading] = useState(false);
-  const [newTagInput, setNewTagInput] = useState("");
-  const [showInput, setShowInput] = useState(false);
-  const [broadcastStart, setBroadcastStart] = useState(false);
-
-  const activeTag = hashtags.find(h => h.active) || hashtags[0];
-
-  async function fetchRealtimeStats() {
-    setLoading(true);
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 200,
-          messages: [{
-            role: "user",
-            content: `Generate realistic mock X/Twitter trending stats for the hashtag ${activeTag?.tag}. Reply ONLY with JSON like: {"tweets":"123.4K","users":"2,100","engagement":"456.7K"}`
-          }]
-        })
-      });
-      const data = await res.json();
-      const text = data.content?.[0]?.text || "{}";
-      const clean = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      setRealtimeTweets(parsed.tweets || "—");
-      setRealtimeUsers(parsed.users || "—");
-      setRealtimeEngagement(parsed.engagement || "—");
-    } catch {
-      setRealtimeTweets("286.6K");
-      setRealtimeUsers("7,600");
-      setRealtimeEngagement("1.4M");
+// ── 儲存 / 載入 ───────────────────────────────────────────
+function loadStore() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+    if (s.cfg) Object.assign(cfg, s.cfg);
+    if (s.state) {
+      Object.assign(state, s.state);
+      // rawData / filteredData / timers are runtime-only, don't restore
+      state.rawData = [];
+      state.filteredData = [];
+      state.runId = null;
+      state.autoTimer = null;
+      state.autoOn = false;
     }
-    setLoading(false);
+  } catch(e){}
+}
+
+function saveStore() {
+  try {
+    const persist = Object.assign({}, state);
+    // don't persist runtime live data
+    delete persist.rawData;
+    delete persist.filteredData;
+    delete persist.runId;
+    delete persist.autoTimer;
+    localStorage.setItem(STORE_KEY, JSON.stringify({cfg, state: persist}));
+  } catch(e){}
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || '儲存成功';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Tab 切換 ──────────────────────────────────────────────
+function switchTab(tab, el) {
+  state.activeTab = tab;
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  ['realtime','live','history','settings'].forEach(id => {
+    document.getElementById('tab-'+id).style.display = id===tab ? '' : 'none';
+  });
+  if (tab==='history') { renderEpTabs(); renderHistData(); drawTrend(); }
+  if (tab==='settings') { renderSettings(); }
+  if (tab==='live') { document.getElementById('live-worker-label').textContent = cfg.workerUrl; }
+  saveStore();
+}
+
+// ══════════════════════════════════════════════════════════
+// REALTIME TAB
+// ══════════════════════════════════════════════════════════
+function renderRTPills() {
+  const c = document.getElementById('rt-pills');
+  c.innerHTML = '';
+  state.rtHashtags.forEach(h => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (h.active ? ' active-pill' : '');
+    b.textContent = h.tag;
+    b.onclick = () => {
+      state.rtHashtags.forEach(x => x.active = x.id === h.id);
+      renderRTPills(); updateRTHero();
+    };
+    c.appendChild(b);
+  });
+  const add = document.createElement('button');
+  add.className = 'pill add-pill';
+  add.innerHTML = '<i class="ti ti-plus" aria-hidden="true"></i> 新增';
+  add.onclick = () => {
+    const tag = prompt('輸入新 Hashtag（含 #）:');
+    if (tag && tag.trim()) {
+      const t = tag.trim().startsWith('#') ? tag.trim() : '#'+tag.trim();
+      state.rtHashtags.push({id: Date.now(), tag: t, active:false});
+      renderRTPills(); saveStore();
+    }
+  };
+  c.appendChild(add);
+}
+
+function activeHashtag() {
+  return (state.rtHashtags.find(h => h.active) || state.rtHashtags[0]);
+}
+
+function updateRTHero() {
+  const h = activeHashtag();
+  const d = state.rtData[h?.tag] || {};
+  document.getElementById('rt-hero-label').textContent = 'TOTAL TWEETS · ' + (h?.tag || '');
+  document.getElementById('rt-hero-num').textContent = d.tweets || '—';
+  document.getElementById('rt-hero-sub').textContent = 'Engagement ' + (d.eng||'—') + ' · Users ' + (d.users||'—');
+  document.getElementById('rt-today').textContent = d.today || '+0';
+  document.getElementById('rt-stat-users').textContent = d.users || '—';
+  document.getElementById('rt-stat-eng').textContent = d.eng || '—';
+  document.getElementById('rt-rank-tw').textContent = d.tw || '—';
+  document.getElementById('rt-rank-th').textContent = d.th || '—';
+  document.getElementById('rt-rank-world').textContent = d.world || '—';
+  document.getElementById('rt-rank-sample').textContent = d.users || '—';
+  if (d.tweets) {
+    document.getElementById('rt-input-tweets').value = d.tweets;
+    document.getElementById('rt-input-eng').value = d.eng || '';
+    document.getElementById('rt-input-users').value = d.users || '';
+    document.getElementById('rt-input-today').value = d.today || '';
+    document.getElementById('rt-input-th').value = d.th || '';
+    document.getElementById('rt-input-world').value = d.world || '';
+    document.getElementById('rt-input-tw').value = d.tw || '';
   }
+}
 
-  function addTag() {
-    if (!newTagInput.trim()) return;
-    const tag = newTagInput.startsWith("#") ? newTagInput : "#" + newTagInput;
-    setHashtags(prev => [...prev, { id: Date.now(), tag, active: false }]);
-    setNewTagInput("");
-    setShowInput(false);
+function previewRT() {
+  document.getElementById('rt-hero-num').textContent = document.getElementById('rt-input-tweets').value || '—';
+  document.getElementById('rt-hero-sub').textContent = 'Engagement ' + (document.getElementById('rt-input-eng').value||'—') + ' · Users ' + (document.getElementById('rt-input-users').value||'—');
+  document.getElementById('rt-today').textContent = document.getElementById('rt-input-today').value || '+0';
+  document.getElementById('rt-stat-users').textContent = document.getElementById('rt-input-users').value || '—';
+  document.getElementById('rt-stat-eng').textContent = document.getElementById('rt-input-eng').value || '—';
+  document.getElementById('rt-rank-th').textContent = document.getElementById('rt-input-th').value || '—';
+  document.getElementById('rt-rank-world').textContent = document.getElementById('rt-input-world').value || '—';
+  document.getElementById('rt-rank-tw').textContent = document.getElementById('rt-input-tw').value || '—';
+  document.getElementById('rt-rank-sample').textContent = document.getElementById('rt-input-users').value || '—';
+}
+
+function saveRT() {
+  const h = activeHashtag();
+  if (!h) return;
+  state.rtData[h.tag] = {
+    tweets: document.getElementById('rt-input-tweets').value,
+    eng: document.getElementById('rt-input-eng').value,
+    users: document.getElementById('rt-input-users').value,
+    today: document.getElementById('rt-input-today').value,
+    th: document.getElementById('rt-input-th').value,
+    world: document.getElementById('rt-input-world').value,
+    tw: document.getElementById('rt-input-tw').value,
+  };
+  saveStore(); toast('儲存成功');
+}
+
+function clearRT() {
+  ['rt-input-tweets','rt-input-eng','rt-input-users','rt-input-today','rt-input-th','rt-input-world','rt-input-tw'].forEach(id => document.getElementById(id).value = '');
+  const h = activeHashtag();
+  if (h) delete state.rtData[h.tag];
+  updateRTHero();
+}
+
+// Broadcast
+function toggleBcast() {
+  state.bcastActive = !state.bcastActive;
+  const btn = document.getElementById('bcast-btn');
+  if (state.bcastActive) {
+    state.bcastStartTime = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'});
+    state.bcastBase = document.getElementById('rt-hero-num').textContent;
+    document.getElementById('bcast-base').textContent = state.bcastBase;
+    document.getElementById('bcast-time').textContent = state.bcastStartTime + ' 開始';
+    btn.innerHTML = '<i class="ti ti-player-pause" aria-hidden="true"></i> 播出中';
+    btn.style.background = '#5a2030';
+  } else {
+    btn.innerHTML = '<i class="ti ti-player-play" aria-hidden="true"></i> 播出開始';
+    btn.style.background = '#b5344a';
   }
-
-  const now = new Date();
-  const resetTime = "每天 00:00";
-
-  return (
-    <div>
-      {/* Hashtag pills */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-        {hashtags.map(h => (
-          <button key={h.id}
-            onClick={() => setHashtags(prev => prev.map(x => ({ ...x, active: x.id === h.id })))}
-            style={{
-              padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer", border: "none",
-              background: h.active ? "linear-gradient(135deg,#b5344a,#8b1a2e)" : "#fff",
-              color: h.active ? "#fff" : "#b5344a",
-              boxShadow: h.active ? "0 2px 8px #b5344a44" : "0 0 0 1.5px #e8c0c8",
-              fontWeight: h.active ? 600 : 400, transition: "all 0.2s"
-            }}>
-            {h.tag}
-          </button>
-        ))}
-        {showInput ? (
-          <div style={{ display: "flex", gap: 6 }}>
-            <input value={newTagInput} onChange={e => setNewTagInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && addTag()}
-              placeholder="#hashtag" autoFocus
-              style={{ padding: "5px 12px", borderRadius: 999, border: "1.5px dashed #b5344a", fontSize: 13, outline: "none", color: "#b5344a" }} />
-            <button onClick={addTag} style={{ padding: "5px 12px", borderRadius: 999, background: "#b5344a", color: "#fff", border: "none", fontSize: 13, cursor: "pointer" }}>+</button>
-          </div>
-        ) : (
-          <button onClick={() => setShowInput(true)}
-            style={{ padding: "6px 14px", borderRadius: 999, border: "1.5px dashed #b5344a", background: "transparent", color: "#b5344a", fontSize: 13, cursor: "pointer" }}>
-            + 新增
-          </button>
-        )}
-      </div>
-
-      {/* Total Tweets Card */}
-      <div style={{ background: "linear-gradient(135deg,#b5344a 0%,#7a1a2e 100%)", borderRadius: 16, padding: "20px 24px", marginBottom: 16, color: "#fff" }}>
-        <div style={{ fontSize: 11, letterSpacing: 2, opacity: 0.8, marginBottom: 8, textTransform: "uppercase" }}>
-          Total Tweets · {activeTag?.tag}
-        </div>
-        {loading ? (
-          <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: -1 }}>⋯</div>
-        ) : (
-          <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: -1 }}>{realtimeTweets}</div>
-        )}
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 16 }}>
-          <div>
-            <div style={{ fontSize: 11, opacity: 0.7 }}>今日新增</div>
-            <div style={{ fontSize: 20, fontWeight: 700 }}>+0</div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 11, opacity: 0.7 }}>重置時間</div>
-            <div style={{ fontSize: 14, fontWeight: 500 }}>{resetTime}</div>
-          </div>
-        </div>
-        <button onClick={fetchRealtimeStats} style={{
-          marginTop: 14, padding: "7px 18px", borderRadius: 999, background: "rgba(255,255,255,0.2)",
-          color: "#fff", border: "none", fontSize: 13, cursor: "pointer", backdropFilter: "blur(4px)"
-        }}>
-          ⚡ 更新數據
-        </button>
-      </div>
-
-      {/* Users & Engagement */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-        {[
-          { label: "USERS", value: realtimeUsers },
-          { label: "ENGAGEMENT", value: realtimeEngagement }
-        ].map(item => (
-          <div key={item.label} style={{ background: "#fff", borderRadius: 14, padding: "16px", boxShadow: "0 2px 12px #f0d0d833" }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600, marginBottom: 8 }}>{item.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "#3a0a14" }}>{item.value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Country Rankings */}
-      <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 16, boxShadow: "0 2px 12px #f0d0d822" }}>
-        <div style={{ fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600, marginBottom: 12 }}>USERS & RANKING</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-          {[
-            { icon: "👥", label: "USERS (SAMPLE)", val: "—" },
-            { icon: "🇹🇼", label: "TW USERS", val: "—" },
-            { icon: "🇹🇭", label: "TH USERS", val: "—" },
-            { icon: "🌐", label: "WORLD RANK", val: "—" },
-            { icon: "🌍", label: "COUNTRIES", val: "—" },
-            { icon: "⚡", label: "PEAK/HR", val: "—" },
-          ].map(item => (
-            <div key={item.label} style={{ background: "#fdf6f7", borderRadius: 10, padding: "10px 6px", textAlign: "center" }}>
-              <div style={{ fontSize: 22 }}>{item.icon}</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#b5344a", margin: "4px 0" }}>{item.val}</div>
-              <div style={{ fontSize: 9, color: "#a07080", letterSpacing: 0.5 }}>{item.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Broadcast section */}
-      <div style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 12px #f0d0d822" }}>
-        <div style={{ fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600, marginBottom: 12 }}>📺 播出累積計算</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <div>
-            <div style={{ fontSize: 12, color: "#a07080" }}>播出時段</div>
-            <div style={{ fontSize: 14, color: "#5a2030" }}>尚未設定</div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <button onClick={() => setBroadcastStart(true)} style={{
-              padding: "8px 18px", borderRadius: 10, background: broadcastStart ? "#5a2030" : "linear-gradient(135deg,#b5344a,#8b1a2e)",
-              color: "#fff", border: "none", fontSize: 13, cursor: "pointer", fontWeight: 600
-            }}>
-              📺 {broadcastStart ? "播出中" : "播出開始"}
-            </button>
-            <button onClick={() => setBroadcastStart(false)} style={{
-              padding: "8px 18px", borderRadius: 10, background: "#f5e8ea", color: "#b5344a", border: "none", fontSize: 13, cursor: "pointer"
-            }}>
-              🔄 重設
-            </button>
-          </div>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div style={{ background: "#fdf6f7", borderRadius: 10, padding: 12 }}>
-            <div style={{ fontSize: 11, color: "#a07080" }}>播出後新增</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#b5344a" }}>—</div>
-          </div>
-          <div style={{ background: "#fdf6f7", borderRadius: 10, padding: 12 }}>
-            <div style={{ fontSize: 11, color: "#a07080" }}>基準時推文數</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#b5344a" }}>—</div>
-          </div>
-        </div>
-        <div style={{ marginTop: 10, fontSize: 13, color: "#5a2030", fontWeight: 600 }}>統計結束時間：隔天 18:00 自動結束</div>
-        <div style={{ fontSize: 11, color: "#a07080", marginTop: 4 }}>播出前按「播出開始」記錄基準，隔天下午 6 點自動停止累積</div>
-      </div>
-    </div>
-  );
+  saveStore();
 }
 
-function HistoryTab() {
-  const [selectedEp, setSelectedEp] = useState("#EP5");
-  const data = mockEpisodeData[selectedEp];
-
-  return (
-    <div>
-      {/* Episode selector */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600, marginBottom: 10 }}>🎬 ENEMIESWITHBENEFITS · 劇集數據</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {episodes.map(ep => {
-            const key = ep.split(" ")[0];
-            const isAvail = !!mockEpisodeData[key];
-            return (
-              <button key={ep}
-                onClick={() => isAvail && setSelectedEp(key)}
-                style={{
-                  padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: isAvail ? "pointer" : "default",
-                  border: "none",
-                  background: selectedEp === key ? "linear-gradient(135deg,#b5344a,#8b1a2e)" : isAvail ? "#fff" : "#f5e8ea",
-                  color: selectedEp === key ? "#fff" : "#b5344a",
-                  boxShadow: selectedEp === key ? "0 2px 8px #b5344a44" : "0 0 0 1.5px #e8c0c8",
-                  opacity: isAvail ? 1 : 0.5,
-                  fontWeight: selectedEp === key ? 600 : 400
-                }}>
-                {ep}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Hashtag stats card */}
-      {data && (
-        <>
-          <div style={{ marginBottom: 8, fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600 }}>
-            📌 HASHTAG · #ENEMIESWITHBENEFITS{selectedEp.replace("#EP", "EP")}
-          </div>
-          <div style={{ background: "linear-gradient(135deg,#b5344a 0%,#7a1a2e 100%)", borderRadius: 16, padding: "20px 24px", marginBottom: 16, color: "#fff" }}>
-            <div style={{ fontSize: 11, letterSpacing: 2, opacity: 0.8, marginBottom: 6, textTransform: "uppercase" }}>Total Tweets</div>
-            <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1 }}>{data.totalTweets}</div>
-            <div style={{ fontSize: 13, opacity: 0.85, marginTop: 4 }}>Engagement {data.engagement} · Users {data.users}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginTop: 16 }}>
-              {[
-                { flag: "🇹🇭", rank: data.thRank, label: "TH RANK" },
-                { flag: "🌐", rank: data.worldRank, label: "WORLD RANK" },
-                { flag: "🇹🇼", rank: data.twRank, label: "TW RANK" },
-              ].map(r => (
-                <div key={r.label} style={{ background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "10px 6px", textAlign: "center" }}>
-                  <div style={{ fontSize: 20 }}>{r.flag}</div>
-                  <div style={{ fontSize: 18, fontWeight: 800 }}>{r.rank}</div>
-                  <div style={{ fontSize: 10, opacity: 0.75, letterSpacing: 1 }}>{r.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Keyword section */}
-          {data.keyword && (
-            <>
-              <div style={{ fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600, marginBottom: 10 }}>
-                📌 KEYWORD · EWB {["FIRST","SECOND","THIRD","FOURTH","FIFTH","SIXTH"][parseInt(selectedEp.replace("#EP",""))-1]} EP
-              </div>
-              <div style={{ background: "#fff", borderRadius: 14, padding: 18, marginBottom: 16, boxShadow: "0 2px 12px #f0d0d833" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                  {[
-                    { label: "TOTAL TWEETS", val: data.keyword.totalTweets },
-                    { label: "ENGAGEMENT", val: data.keyword.engagement },
-                    { label: "TH RANK", val: data.keyword.thRank },
-                    { label: "WORLD RANK", val: data.keyword.worldRank },
-                    { label: "TW RANK", val: data.keyword.twRank },
-                    { label: "USERS", val: data.keyword.users },
-                  ].map(item => (
-                    <div key={item.label}>
-                      <div style={{ fontSize: 10, letterSpacing: 1.5, color: "#a07080", marginBottom: 2 }}>{item.label}</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: "#b5344a" }}>{item.val}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </>
-      )}
-
-      {/* Country Rankings */}
-      <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 16, boxShadow: "0 2px 12px #f0d0d822" }}>
-        <div style={{ fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600, marginBottom: 12 }}>🌐 COUNTRY RANKINGS</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {["🌍 Worldwide","🇹🇼 Taiwan","🇹🇭 Thailand","🇻🇳 Vietnam","🇵🇭 Philippines","🇮🇩 Indonesia"].map(c => (
-            <span key={c} style={{ padding: "5px 12px", borderRadius: 999, background: "#fdf6f7", color: "#b5344a", fontSize: 12, border: "1px solid #e8c0c8" }}>
-              {c} —
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Keyword Tracking */}
-      <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 16, boxShadow: "0 2px 12px #f0d0d822" }}>
-        <div style={{ fontSize: 10, letterSpacing: 2, color: "#b5344a", fontWeight: 600, marginBottom: 10 }}>🔍 KEYWORD 追蹤</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", background: "#fdf6f7", borderRadius: 10 }}>
-          <div>
-            <div style={{ fontWeight: 700, color: "#b5344a", fontSize: 14 }}>EWB FIFTH EP</div>
-            <div style={{ fontSize: 12, color: "#a07080" }}>Keyword 搜尋量</div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#b5344a" }}>—K</div>
-            <div style={{ fontSize: 11, color: "#a07080" }}>Total Tweets</div>
-          </div>
-        </div>
-        <button style={{ width: "100%", marginTop: 10, padding: "10px", borderRadius: 10, border: "1.5px dashed #e8c0c8", background: "transparent", color: "#b5344a", fontSize: 13, cursor: "pointer" }}>
-          + 新增 Keyword
-        </button>
-      </div>
-
-      {/* Cumulative Trend */}
-      <div style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 12px #f0d0d822" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <div style={{ fontWeight: 700, fontSize: 15, color: "#3a0a14" }}>Tweet Volume</div>
-          <span style={{ padding: "4px 12px", borderRadius: 999, background: "#b5344a", color: "#fff", fontSize: 12 }}>每小時</span>
-        </div>
-        <Sparkline data={trendData} />
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-          {trendLabels.map((l, i) => (
-            <div key={i} style={{ fontSize: 9, color: "#c0a0a8" }}>{l}</div>
-          ))}
-        </div>
-        <div style={{ fontSize: 11, color: "#a07080", marginTop: 6 }}>24hr 趨勢</div>
-      </div>
-    </div>
-  );
+function resetBcast() {
+  state.bcastActive = false;
+  state.bcastBase = '';
+  state.bcastStartTime = null;
+  document.getElementById('bcast-time').textContent = '尚未設定';
+  document.getElementById('bcast-new').textContent = '—';
+  document.getElementById('bcast-base').textContent = '—';
+  const btn = document.getElementById('bcast-btn');
+  btn.innerHTML = '<i class="ti ti-player-play" aria-hidden="true"></i> 播出開始';
+  btn.style.background = '#b5344a';
+  saveStore();
 }
 
-export default function App() {
-  const [tab, setTab] = useState("realtime");
-  const [hashtags, setHashtags] = useState(initialHashtags);
-  const [updateTime] = useState("下午4:28:05");
-
-  return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(160deg,#fff5f6 0%,#fce8ec 100%)",
-      fontFamily: "'Noto Sans TC', 'Segoe UI', sans-serif",
-      maxWidth: 480,
-      margin: "0 auto",
-      padding: "0 0 32px"
-    }}>
-      {/* Header */}
-      <div style={{ padding: "24px 20px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 14,
-            background: "linear-gradient(135deg,#f4a0b0,#e06080)",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24
-          }}>🐱</div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 17, color: "#3a0a14", letterSpacing: -0.5 }}>Jewel's TAIWAN</div>
-            <div style={{ fontSize: 11, letterSpacing: 2, color: "#b5344a", fontWeight: 600 }}>X TRENDING</div>
-          </div>
-        </div>
-        <div style={{ fontSize: 20, color: "#e0a0b0", cursor: "pointer" }}>✦</div>
-      </div>
-
-      {/* Tab switcher */}
-      <div style={{ margin: "0 16px 20px", background: "#fff", borderRadius: 14, padding: 4, display: "flex", boxShadow: "0 2px 12px #e8c0c822" }}>
-        {[
-          { id: "realtime", label: "⚡ Realtime" },
-          { id: "history", label: "📈 History" }
-        ].map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{
-            flex: 1, padding: "10px", borderRadius: 10, border: "none", fontSize: 14, cursor: "pointer",
-            background: tab === t.id ? "linear-gradient(135deg,#b5344a,#8b1a2e)" : "transparent",
-            color: tab === t.id ? "#fff" : "#b5344a",
-            fontWeight: tab === t.id ? 700 : 400,
-            transition: "all 0.2s"
-          }}>{t.label}</button>
-        ))}
-      </div>
-
-      {/* Content */}
-      <div style={{ padding: "0 16px" }}>
-        {tab === "realtime"
-          ? <RealtimeTab hashtags={hashtags} setHashtags={setHashtags} />
-          : <HistoryTab />
-        }
-      </div>
-
-      {/* Footer */}
-      <div style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: "#c0a0a8" }}>
-        ⏱ 更新時間：{updateTime}
-      </div>
-    </div>
-  );
+// ══════════════════════════════════════════════════════════
+// LIVE TAB
+// ══════════════════════════════════════════════════════════
+function renderHTPills() {
+  const c = document.getElementById('ht-pills');
+  if (!c) return;
+  c.innerHTML = '';
+  cfg.hashtags.forEach(ht => {
+    const b = document.createElement('button');
+    b.className = 'pill';
+    b.textContent = ht;
+    b.onclick = () => filterAndShow(ht);
+    c.appendChild(b);
+  });
 }
+
+function setStatus(msg, type='') {
+  const bar = document.getElementById('status-bar');
+  bar.className = 'status-bar' + (type ? ' '+type : '');
+  document.getElementById('status-text').textContent = msg;
+}
+
+async function startFetch() {
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled = true;
+  setStatus('正在啟動 Apify Actor...', 'running');
+  try {
+    const res = await fetch(cfg.workerUrl + '?action=start');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    if (!data.runId) throw new Error('沒有收到 runId，請確認 Worker 設定正確');
+    state.runId = data.runId;
+    setStatus('Actor 啟動中，等待結果 (runId: '+data.runId+')', 'running');
+    pollResult();
+  } catch(e) {
+    setStatus('錯誤：' + e.message, 'error');
+    btn.disabled = false;
+  }
+}
+
+async function pollResult() {
+  if (!state.runId) return;
+  setStatus('抓取中，請稍候... (約 15–30 秒)', 'running');
+  let tries = 0;
+  const interval = setInterval(async () => {
+    tries++;
+    if (tries > 40) {
+      clearInterval(interval);
+      setStatus('逾時，請再試一次', 'error');
+      document.getElementById('fetch-btn').disabled = false;
+      return;
+    }
+    try {
+      const statusRes = await fetch(cfg.workerUrl + '?action=status&runId=' + state.runId);
+      const statusData = await statusRes.json();
+      if (statusData.status === 'SUCCEEDED') {
+        clearInterval(interval);
+        await fetchResult();
+      } else if (statusData.status === 'FAILED' || statusData.status === 'ABORTED') {
+        clearInterval(interval);
+        setStatus('Actor 執行失敗，請重試', 'error');
+        document.getElementById('fetch-btn').disabled = false;
+      } else {
+        setStatus('執行中 (' + (statusData.status||'RUNNING') + ')... 第 ' + tries + ' 次輪詢', 'running');
+      }
+    } catch(e) {
+      clearInterval(interval);
+      await fetchResult();
+    }
+  }, 3000);
+}
+
+async function fetchResult() {
+  try {
+    const keyword = cfg.hashtags.map(h => h.replace('#','')).join(',').toLowerCase();
+    const res = await fetch(cfg.workerUrl + '?action=result&runId=' + state.runId + '&keyword=' + encodeURIComponent(keyword));
+    const data = await res.json();
+    const all = data.all || data;
+    const filtered = data.filtered || [];
+    state.rawData = Array.isArray(all) ? all : [];
+    state.filteredData = filtered;
+    renderTrends();
+    renderMatchCard(filtered);
+    document.getElementById('last-update').textContent = new Date().toLocaleTimeString('zh-TW');
+    setStatus('✓ 抓取成功！共 ' + state.rawData.length + ' 筆趨勢數據', 'success');
+    document.getElementById('fetch-btn').disabled = false;
+  } catch(e) {
+    setStatus('取得結果失敗：' + e.message, 'error');
+    document.getElementById('fetch-btn').disabled = false;
+  }
+}
+
+function renderTrends() {
+  const list = document.getElementById('trends-list');
+  let data = state.rawData;
+  if (state.currentLoc !== 'all') {
+    data = data.filter(d => (d.location||d.country||'').toLowerCase().includes(state.currentLoc));
+  }
+  if (!data.length) {
+    list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--color-text-secondary);font-size:13px">此地區無數據</div>';
+    return;
+  }
+  const htLower = cfg.hashtags.map(h => h.toLowerCase().replace('#',''));
+  list.innerHTML = data.slice(0,30).map((item,i) => {
+    const name = item.name || item.trend || item.query || '—';
+    const vol = item.tweetVolume || item.tweet_volume || item.volume || '';
+    const isMatch = htLower.some(ht => name.toLowerCase().includes(ht));
+    return `<div class="trend-item">
+      <div class="trend-rank">#${item.rank||(i+1)}</div>
+      <div class="trend-name ${isMatch?'trend-hl':''}">${name}</div>
+      <div class="trend-vol">${vol ? Number(vol).toLocaleString() : '—'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMatchCard(filtered) {
+  const card = document.getElementById('match-card');
+  if (!filtered.length) { card.style.display='none'; return; }
+  card.style.display = '';
+  const first = filtered[0];
+  const name = first.name || first.trend || first.query || '—';
+  const vol = first.tweetVolume || first.tweet_volume || first.volume || '—';
+  const rank = first.rank ? '#'+first.rank : '—';
+  document.getElementById('match-label').textContent = 'TRENDING NOW · ' + name;
+  document.getElementById('match-num').textContent = vol !== '—' ? Number(vol).toLocaleString() : 'trending';
+  document.getElementById('match-sub').textContent = '排行 ' + rank + ' · ' + (first.location||'');
+}
+
+function filterAndShow(ht) {
+  const kw = ht.replace('#','').toLowerCase();
+  const filtered = state.rawData.filter(d => (d.name||d.trend||d.query||'').toLowerCase().includes(kw));
+  renderMatchCard(filtered.length ? filtered : []);
+  if (!filtered.length) toast('趨勢中找不到 ' + ht + '，可能尚未進榜');
+}
+
+function switchLoc(loc, el) {
+  state.currentLoc = loc;
+  document.querySelectorAll('.loc-tab').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  renderTrends();
+}
+
+function toggleAuto() {
+  const btn = document.getElementById('auto-toggle');
+  state.autoOn = !state.autoOn;
+  btn.className = 'toggle ' + (state.autoOn ? 'on' : 'off');
+  if (state.autoOn) {
+    startFetch();
+    state.autoTimer = setInterval(() => startFetch(), cfg.intervalMin * 60 * 1000);
+    document.getElementById('auto-interval-label').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取（已開啟）';
+  } else {
+    clearInterval(state.autoTimer);
+    document.getElementById('auto-interval-label').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// HISTORY TAB
+// ══════════════════════════════════════════════════════════
+function renderEpTabs() {
+  const c = document.getElementById('ep-tabs');
+  c.innerHTML = '';
+  epNames.forEach((ep, i) => {
+    const b = document.createElement('button');
+    const d = state.epData[ep];
+    const hasData = d && d.tweets;
+    b.className = 'pill' + (state.selectedEp===ep ? ' active-pill' : '');
+    b.textContent = '#' + ep + (ep==='EP6' && !hasData ? ' 🔜' : '');
+    b.onclick = () => { state.selectedEp=ep; renderEpTabs(); renderHistData(); loadEpInputs(); };
+    c.appendChild(b);
+  });
+}
+
+function renderHistData() {
+  const ep = state.selectedEp;
+  const d = state.epData[ep];
+  const idx = epNames.indexOf(ep);
+  const kwName = kwNames[idx] || '';
+  const hero = document.getElementById('hist-hero');
+  const kwSec = document.getElementById('hist-kw-section');
+  const editSec = document.getElementById('hist-edit');
+  editSec.style.display = '';
+  if (!d || !d.tweets) { hero.style.display='none'; kwSec.style.display='none'; return; }
+  hero.style.display = '';
+  document.getElementById('hist-tag-label').textContent = 'HASHTAG · #ENEMIESWITHBENEFITS' + ep;
+  document.getElementById('hist-tweets').textContent = d.tweets;
+  document.getElementById('hist-sub').textContent = 'Engagement ' + d.eng + ' · Users ' + d.users;
+  document.getElementById('hist-th').textContent = d.th || '—';
+  document.getElementById('hist-world').textContent = d.world || '—';
+  document.getElementById('hist-tw').textContent = d.tw || '—';
+  if (d.kw) {
+    kwSec.style.display = '';
+    document.getElementById('hist-kw-title').textContent = 'KEYWORD · EWB ' + kwName + ' EP';
+    document.getElementById('kw-tweets').textContent = d.kw.tweets || '—';
+    document.getElementById('kw-eng').textContent = d.kw.eng || '—';
+    document.getElementById('kw-th').textContent = d.kw.th || '—';
+    document.getElementById('kw-world').textContent = d.kw.world || '—';
+    document.getElementById('kw-tw').textContent = d.kw.tw || '—';
+    document.getElementById('kw-users').textContent = d.kw.users || '—';
+  } else { kwSec.style.display='none'; }
+}
+
+function loadEpInputs() {
+  const d = state.epData[state.selectedEp] || {};
+  document.getElementById('h-tweets').value = d.tweets || '';
+  document.getElementById('h-eng').value = d.eng || '';
+  document.getElementById('h-users').value = d.users || '';
+  document.getElementById('h-th').value = d.th || '';
+  document.getElementById('h-world').value = d.world || '';
+  document.getElementById('h-tw').value = d.tw || '';
+  const kw = d.kw || {};
+  document.getElementById('h-kw-tweets').value = kw.tweets || '';
+  document.getElementById('h-kw-eng').value = kw.eng || '';
+  document.getElementById('h-kw-th').value = kw.th || '';
+  document.getElementById('h-kw-world').value = kw.world || '';
+  document.getElementById('h-kw-tw').value = kw.tw || '';
+  document.getElementById('h-kw-users').value = kw.users || '';
+}
+
+function saveEpData() {
+  const ep = state.selectedEp;
+  const kwTweets = document.getElementById('h-kw-tweets').value;
+  state.epData[ep] = {
+    tweets: document.getElementById('h-tweets').value,
+    eng: document.getElementById('h-eng').value,
+    users: document.getElementById('h-users').value,
+    th: document.getElementById('h-th').value,
+    world: document.getElementById('h-world').value,
+    tw: document.getElementById('h-tw').value,
+    kw: kwTweets ? {
+      tweets: kwTweets,
+      eng: document.getElementById('h-kw-eng').value,
+      th: document.getElementById('h-kw-th').value,
+      world: document.getElementById('h-kw-world').value,
+      tw: document.getElementById('h-kw-tw').value,
+      users: document.getElementById('h-kw-users').value,
+    } : null
+  };
+  saveStore(); toast('儲存成功'); renderHistData();
+}
+
+function clearEpInputs() {
+  ['h-tweets','h-eng','h-users','h-th','h-world','h-tw','h-kw-tweets','h-kw-eng','h-kw-th','h-kw-world','h-kw-tw','h-kw-users'].forEach(id => document.getElementById(id).value = '');
+}
+
+function drawTrend() {
+  const canvas = document.getElementById('trend-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = 120;
+  const data = [20.1,20.0,20.2,20.0,20.1,19.9,20.1,20.0,20.2,20.0,19.8,20.1,20.3,20.0,20.1,19.9,20.2,20.0,20.1,20.0];
+  const w = canvas.width, h = canvas.height, pad = 10;
+  const min = 19.5, max = 20.5;
+  ctx.clearRect(0,0,w,h);
+  const pts = data.map((v,i) => [pad + (i/(data.length-1))*(w-2*pad), pad + ((max-v)/(max-min))*(h-2*pad)]);
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(181,52,74,0.25)');
+  grad.addColorStop(1,'rgba(181,52,74,0.02)');
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  pts.slice(1).forEach(p => ctx.lineTo(p[0],p[1]));
+  ctx.lineTo(pts[pts.length-1][0], h-pad);
+  ctx.lineTo(pts[0][0], h-pad);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  pts.slice(1).forEach(p => ctx.lineTo(p[0],p[1]));
+  ctx.strokeStyle = '#b5344a'; ctx.lineWidth = 2; ctx.stroke();
+  pts.forEach(p => { ctx.beginPath(); ctx.arc(p[0],p[1],4,0,Math.PI*2); ctx.fillStyle='#b5344a'; ctx.fill(); });
+}
+
+// ══════════════════════════════════════════════════════════
+// SETTINGS TAB
+// ══════════════════════════════════════════════════════════
+function renderSettings() {
+  document.getElementById('cfg-worker').value = cfg.workerUrl;
+  document.getElementById('cfg-interval').value = cfg.intervalMin;
+  const hm = document.getElementById('ht-manage');
+  hm.innerHTML = cfg.hashtags.map((ht,i) =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <span style="font-size:13px;color:var(--color-text-primary)">${ht}</span>
+      <button onclick="removeHt(${i})" style="background:none;border:none;cursor:pointer;color:#b5344a;font-size:13px"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    </div>`
+  ).join('');
+  const lm = document.getElementById('loc-manage');
+  const allLocs = ['taiwan','thailand','worldwide','vietnam','philippines','indonesia'];
+  lm.innerHTML = allLocs.map(loc =>
+    `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;cursor:pointer">
+      <input type="checkbox" ${cfg.locations.includes(loc)?'checked':''} onchange="toggleLoc('${loc}',this.checked)" style="accent-color:#b5344a">
+      ${loc.charAt(0).toUpperCase()+loc.slice(1)}
+    </label>`
+  ).join('');
+}
+
+function saveSettings() {
+  cfg.workerUrl = document.getElementById('cfg-worker').value.trim();
+  cfg.intervalMin = parseInt(document.getElementById('cfg-interval').value) || 5;
+  saveStore(); toast('設定已儲存');
+  document.getElementById('live-worker-label').textContent = cfg.workerUrl;
+  document.getElementById('auto-interval-label').textContent = '每 '+cfg.intervalMin+' 分鐘自動抓取';
+}
+
+function addHashtag() {
+  let ht = document.getElementById('new-ht').value.trim();
+  if (!ht) return;
+  if (!ht.startsWith('#')) ht = '#'+ht;
+  if (!cfg.hashtags.includes(ht)) { cfg.hashtags.push(ht); saveStore(); renderSettings(); renderHTPills(); }
+  document.getElementById('new-ht').value = '';
+}
+
+function removeHt(i) {
+  cfg.hashtags.splice(i,1); saveStore(); renderSettings(); renderHTPills();
+}
+
+function toggleLoc(loc, on) {
+  if (on && !cfg.locations.includes(loc)) cfg.locations.push(loc);
+  else if (!on) cfg.locations = cfg.locations.filter(l => l!==loc);
+  saveStore();
+}
+
+// ── 時間更新 ──────────────────────────────────────────────
+function updateTime() {
+  document.getElementById('update-time').textContent = new Date().toLocaleTimeString('zh-TW');
+}
+
+// ── 初始化 ────────────────────────────────────────────────
+loadStore();
+renderRTPills();
+updateRTHero();
+renderHTPills();
+document.getElementById('live-worker-label').textContent = cfg.workerUrl;
+if (state.bcastActive) {
+  document.getElementById('bcast-time').textContent = (state.bcastStartTime || '') + ' 開始';
+  document.getElementById('bcast-base').textContent = state.bcastBase || '—';
+  const btn = document.getElementById('bcast-btn');
+  btn.innerHTML = '<i class="ti ti-player-pause" aria-hidden="true"></i> 播出中';
+  btn.style.background = '#5a2030';
+}
+updateTime();
+setInterval(updateTime, 30000);
+</script>
