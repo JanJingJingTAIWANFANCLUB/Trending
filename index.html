@@ -1021,23 +1021,47 @@ const CONFIG_WORKER = "https://janjingjing-config.janjingjingtaiwanfanclub.worke
 
 async function saveToGitHub() {
   try {
-    const getRes = await fetch(
-      "https://api.github.com/repos/JanJingJingTAIWANFANCLUB/Trending/contents/index.html"
-    );
+    const apiUrl = "https://api.github.com/repos/JanJingJingTAIWANFANCLUB/Trending/contents/index.html";
+
+    // 1. 先抓原檔案（可能不存在）
+    let sha = null;
+
+    const getRes = await fetch(apiUrl);
     const fileData = await getRes.json();
-    const sha = fileData.sha;
+
+    if (getRes.ok && fileData.sha) {
+      sha = fileData.sha;
+    }
+
+    // 2. 讀 HTML
     const html = document.documentElement.outerHTML;
-    const content = btoa(unescape(encodeURIComponent(html)));
+
+    // 3. 正確 base64（避免中文錯誤）
+    const content = btoa(
+      new TextEncoder().encode(html)
+        .reduce((data, byte) => data + String.fromCharCode(byte), "")
+    );
+
+    // 4. GitHub 更新 payload
+    const body = {
+      message: "update index.html",
+      content: content,
+      sha: sha // 沒有也可以（新檔案可不傳）
+    };
+
     const res = await fetch(CONFIG_WORKER, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content, sha })
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
     });
-    const data = await res.json();
-    return !!data.content;
-  } catch(e) {
-    console.error("儲存錯誤", e);
-    return false;
+
+    const result = await res.json();
+    console.log("GitHub save result:", result);
+
+  } catch (err) {
+    console.error("saveToGitHub error:", err);
   }
 }
 
